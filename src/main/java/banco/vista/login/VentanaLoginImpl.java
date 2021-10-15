@@ -429,24 +429,8 @@ public class VentanaLoginImpl extends JFrame implements VentanaLogin, ItemListen
 				} 
 				else if (getUsuarioSeleccionado().equals("ATM")) 
 				{
-					logger.info("Intenta ingresar como Cliente");
-					String password = new String(getPassword());
-					if (getUserName().equals("") || password.equals("")) {//controla que los campos no estén vacíos
-						JOptionPane.showMessageDialog(panelLogin, "Debe completar todos los campos.", "Advertencia.", JOptionPane.WARNING_MESSAGE);
-					}
-					else {
-						if (!contieneSoloNumeros(getUserName())) {
-							JOptionPane.showMessageDialog(panelLogin, "El Nro Tarjeta solo puede contener dígitos.", "Error en el Nro Tarjeta.", JOptionPane.ERROR_MESSAGE);
-						}
-						else {
-							if (getUserName().equals(password)) {//comprueba que el Nro de Tarjeta sea igual al PIN
-								controlador.ingresarComoCliente(getUserName(),getPassword());	
-							}
-							else {
-								JOptionPane.showMessageDialog(panelLogin, "El PIN ingresado es incorrecto. Por favor vuelva ha ingresarlo.", "Error en el PIN", JOptionPane.ERROR_MESSAGE);
-							}
-						}
-					}
+					logger.info("Intenta ingresar como Cliente");				
+	            	controlador.ingresarComoCliente(getUserName(),getPassword());					
 				} 
 				else  
 				{ 
@@ -463,14 +447,4 @@ public class VentanaLoginImpl extends JFrame implements VentanaLogin, ItemListen
             }
         };
 	}	
-	
-	private boolean contieneSoloNumeros(String cad) {
-		boolean soloNumeros = true;
-		for (int i = 0; i < cad.length() && soloNumeros; i++) {
-            if (!Character.isDigit(cad.charAt(i))) {
-                soloNumeros = false;
-            }
-        }
-		return soloNumeros;
-	}
 }
