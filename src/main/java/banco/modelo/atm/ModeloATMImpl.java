@@ -4,8 +4,6 @@ import java.io.FileInputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -126,7 +124,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		}
 		boolean encontroTarjeta = false;
 		Double saldo = 0.0;
-		ResultSet rs= this.consulta("SELECT saldo, nro_tarjeta from Tarjeta INNER JOIN trans_cajas_ahorro ON Tarjeta.nro_ca = trans_cajas_ahorro.nro_ca;");
+		ResultSet rs= this.consulta("select saldo, nro_tarjeta from Tarjeta natural join trans_cajas_ahorro;");
 		try {
 			while (rs.next() && !encontroTarjeta) {	
 				if (rs.getString("nro_tarjeta").equals(tarjeta)) {
@@ -157,7 +155,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	public ArrayList<TransaccionCajaAhorroBean> cargarUltimosMovimientos(int cantidad) throws Exception
 	{
 		logger.info("Busca las ultimas {} transacciones en la BD de la tarjeta {}",cantidad, Integer.valueOf(this.tarjeta.trim()));
-		ResultSet rs= this.consulta("select fecha, hora, tipo, monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro");
+		ResultSet rs= this.consulta("select fecha, hora, tipo, monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta);
 		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
 		try {
 			while (rs.next()) {	
