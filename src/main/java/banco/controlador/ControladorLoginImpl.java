@@ -149,5 +149,11 @@ public class ControladorLoginImpl implements ControladorLogin {
 		}			
 		
 	}
+
+
+	/*@Override
+	public boolean validar(String displayname, String usuario, char[] clave) {
+		return this.modelo.validar(displayname, usuario, clave);
+	}*/
 	
 }

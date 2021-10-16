@@ -1,6 +1,9 @@
 package banco.modelo.atm;
 
 import java.io.FileInputStream;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import banco.modelo.ModeloImpl;
 import banco.utils.Fechas;
+import banco.utils.Parsing;
 
 
 public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
@@ -51,8 +55,40 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 
 	@Override
 	public boolean autenticarUsuarioAplicacion(String tarjeta, String pin)	{
-		
 		logger.info("Se intenta autenticar la tarjeta {} con pin {}", tarjeta, pin);
+		ResultSet rs= this.consulta("select nro_tarjeta, PIN from Tarjeta");
+		boolean encontroTarjeta = false;
+		boolean autentica = false;
+		try {
+			if (!tarjeta.equals(pin)) {
+				logger.info("El número de tarjeta {} no coincide con el pin {}", tarjeta,pin);
+			}
+			else {
+				while (rs.next() && !encontroTarjeta) {	
+					if (rs.getString("nro_tarjeta").equals(tarjeta)) {
+						encontroTarjeta = true;
+						this.tarjeta = tarjeta;
+						logger.info("La tarjeta {} existe en la BD", tarjeta);
+						if (rs.getString("PIN").equals(this.md5OfString(pin))) {
+							logger.info("El pin {} corresponde con el pin asociado a la tarjeta en la BD {}", pin,tarjeta);
+							autentica = true;
+						}
+						else {
+							logger.info("El pin {} no corresponde con el pin asociado a la tarjeta en la BD {}", pin,tarjeta);
+						}
+					}		
+				}
+				if (!encontroTarjeta) {
+					logger.info("La tarjeta {} no existe en la BD", tarjeta);
+				}
+			}
+		}
+		catch (SQLException ex) {
+			   logger.error("SQLException: " + ex.getMessage());
+			   logger.error("SQLState: " + ex.getSQLState());
+			   logger.error("VendorError: " + ex.getErrorCode());		   
+		}
+		return autentica;
 
 		/** 
 		 * TODO Código que autentica que exista una tarjeta con ese pin (el pin guardado en la BD está en MD5)
@@ -64,32 +100,60 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		/*
 		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
 		 */
-		this.tarjeta = tarjeta;
-        return true;
+		
 		// Fin datos estáticos de prueba.
 	}
+	
+	private static String md5OfString(String input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(input.getBytes());
+            BigInteger number = new BigInteger(1, messageDigest);
+            String hashtext = number.toString(16);
+
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
+            }
+            return hashtext;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
 	
 	
 	@Override
 	public Double obtenerSaldo() throws Exception
 	{
-		logger.info("Se intenta obtener el saldo de cliente {}", 3);
+		logger.info("Se intenta obtener el saldo de la caja de ahorro asociada a la tarjeta ingresada");
 
 		if (this.tarjeta == null ) {
 			throw new Exception("El cliente no ingresó la tarjeta");
 		}
-
+		boolean encontroTarjeta = false;
+		Double saldo = 0.0;
+		ResultSet rs= this.consulta("SELECT saldo, nro_tarjeta from Tarjeta natural join Cliente_CA natural join Caja_Ahorro");
+		//NO FUNCIONA PQ EL USUARIO ATM NO PUEDE HACER CONSULTA SOBRE LA TABLA CLIENTE_CA
+		try {
+			
+			while (rs.next() && !encontroTarjeta) {	
+				
+				if (rs.getString("nro_tarjeta").equals(tarjeta)) {
+					encontroTarjeta = true;
+					saldo = Parsing.parseMonto(rs.getString("saldo"));
+					logger.info("El saldo de la caja de ahorro asociada a la tarjeta {} es {}",this.tarjeta,saldo);
+				}		
+			}
+		}
+		catch (SQLException ex) {
+			   logger.error("SQLException: " + ex.getMessage());
+			   logger.error("SQLState: " + ex.getSQLState());
+			   logger.error("VendorError: " + ex.getErrorCode());		   
+		}
 		/** 
 		 * TODO Obtiene el saldo.
 		 *      Debe capturar la excepción SQLException y propagar una Exception más amigable.
 		 */
-
-		/*
-		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.
-		 */
-		Double saldo = (double) 1001;		
 		return saldo;
-		// Fin datos estáticos de prueba.
 	}	
 
 	@Override
@@ -101,7 +165,29 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	public ArrayList<TransaccionCajaAhorroBean> cargarUltimosMovimientos(int cantidad) throws Exception
 	{
 		logger.info("Busca las ultimas {} transacciones en la BD de la tarjeta {}",cantidad, Integer.valueOf(this.tarjeta.trim()));
-
+		ResultSet rs= this.consulta("select fecha, hora, tipo, monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro");
+		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
+		try {
+			while (rs.next()) {	
+				TransaccionCajaAhorroBean t = new TransaccionCajaAhorroBeanImpl();
+				t.setTransaccionFechaHora(Fechas.convertirStringADate(rs.getString("fecha"),rs.getString("hora")));
+				t.setTransaccionTipo(rs.getString("tipo"));
+				if (rs.getString("tipo").equals("extraccion") || rs.getString("tipo").equals("transferencia") || rs.getString("tipo").equals("debito")) {
+					t.setTransaccionMonto(Parsing.parseMonto(rs.getString("monto")));//ACA FALTA PONER EL - ANTES DEL MONTO
+				}
+				else {
+					t.setTransaccionMonto(Parsing.parseMonto(rs.getString("monto")));
+				}
+				t.setTransaccionCodigoCaja((int) Parsing.parseMonto(rs.getString("cod_caja")));
+				t.setCajaAhorroDestinoNumero((int) Parsing.parseMonto(rs.getString("destino")));
+				lista.add(t);
+			}
+		}
+		catch (SQLException ex) {
+			   logger.error("SQLException: " + ex.getMessage());
+			   logger.error("SQLState: " + ex.getSQLState());
+			   logger.error("VendorError: " + ex.getErrorCode());		   
+		}
 		/**
 		 * TODO Deberá recuperar los ultimos movimientos del cliente, la cantidad está definida en el parámetro.
 		 * 		Debe capturar la excepción SQLException y propagar una Exception más amigable. 
@@ -121,7 +207,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		+------------+----------+---------------+---------+----------+---------+
  		 */
 		
-		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
+		/*ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
 		TransaccionCajaAhorroBean fila1 = new TransaccionCajaAhorroBeanImpl();
 		fila1.setTransaccionFechaHora(Fechas.convertirStringADate("2021-09-16","11:10:00"));
 		fila1.setTransaccionTipo("transferencia");
@@ -160,7 +246,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		fila5.setTransaccionMonto(-400.00);
 		fila5.setTransaccionCodigoCaja(41);
 		fila5.setCajaAhorroDestinoNumero(7);	
-		lista.add(fila5);
+		lista.add(fila5);*/
 		
 		return lista;
 		

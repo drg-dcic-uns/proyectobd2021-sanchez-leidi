@@ -18,4 +18,6 @@ public interface ControladorLogin {
 	 */
 	public void ingresarComoCliente(String tarjeta, char[] pin);
 	
+	//public boolean validar(String displayname, String usuario, char[] clave);
+	
 }

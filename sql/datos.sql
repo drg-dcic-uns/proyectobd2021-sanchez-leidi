@@ -281,7 +281,8 @@ INSERT INTO Tarjeta(PIN, CVT, fecha_venc, nro_cliente, nro_ca) VALUES (md5('8765
 INSERT INTO Tarjeta(PIN, CVT, fecha_venc, nro_cliente, nro_ca) VALUES (md5('7654'), md5('3418'), str_to_date('25/12/2021', '%d/%m/%Y'), 2, 12);
 INSERT INTO Tarjeta(PIN, CVT, fecha_venc, nro_cliente, nro_ca) VALUES (md5('6543'), md5('4859'), str_to_date('25/12/2021', '%d/%m/%Y'), 2, 13);
 INSERT INTO Tarjeta(PIN, CVT, fecha_venc, nro_cliente, nro_ca) VALUES (md5('5432'), md5('7485'), str_to_date('25/12/2021', '%d/%m/%Y'), 7, 14);
-INSERT INTO Tarjeta(PIN, CVT, fecha_venc, nro_cliente, nro_ca) VALUES (md5('4321'), md5('3415'), str_to_date('25/12/2021', '%d/%m/%Y'), 9, 15);
+INSERT INTO Tarjeta(PIN, CVT, fecha_venc, nro_cliente, nro_ca) VALUES (md5('15'), md5('3415'), str_to_date('25/12/2021', '%d/%m/%Y'), 9, 15);
+
 
 
 
