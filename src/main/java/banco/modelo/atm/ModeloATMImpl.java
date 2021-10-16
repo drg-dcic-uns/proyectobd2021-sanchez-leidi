@@ -60,27 +60,22 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		boolean encontroTarjeta = false;
 		boolean autentica = false;
 		try {
-			if (!tarjeta.equals(pin)) {
-				logger.info("El número de tarjeta {} no coincide con el pin {}", tarjeta,pin);
+			while (rs.next() && !encontroTarjeta) {	
+				if (rs.getString("nro_tarjeta").equals(tarjeta)) {
+					encontroTarjeta = true;
+					this.tarjeta = tarjeta;
+					logger.info("La tarjeta {} existe en la BD", tarjeta);
+					if (rs.getString("PIN").equals(this.md5OfString(pin))) {
+						logger.info("El pin {} corresponde con el pin asociado a la tarjeta en la BD {}", pin,tarjeta);
+						autentica = true;
+					}
+					else {
+						logger.info("El pin {} no corresponde con el pin asociado a la tarjeta en la BD {}", pin,tarjeta);
+					}
+				}		
 			}
-			else {
-				while (rs.next() && !encontroTarjeta) {	
-					if (rs.getString("nro_tarjeta").equals(tarjeta)) {
-						encontroTarjeta = true;
-						this.tarjeta = tarjeta;
-						logger.info("La tarjeta {} existe en la BD", tarjeta);
-						if (rs.getString("PIN").equals(this.md5OfString(pin))) {
-							logger.info("El pin {} corresponde con el pin asociado a la tarjeta en la BD {}", pin,tarjeta);
-							autentica = true;
-						}
-						else {
-							logger.info("El pin {} no corresponde con el pin asociado a la tarjeta en la BD {}", pin,tarjeta);
-						}
-					}		
-				}
-				if (!encontroTarjeta) {
-					logger.info("La tarjeta {} no existe en la BD", tarjeta);
-				}
+			if (!encontroTarjeta) {
+				logger.info("La tarjeta {} no existe en la BD", tarjeta);
 			}
 		}
 		catch (SQLException ex) {
