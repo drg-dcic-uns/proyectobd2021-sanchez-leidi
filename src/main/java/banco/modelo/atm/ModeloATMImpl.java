@@ -127,12 +127,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		boolean encontroTarjeta = false;
 		Double saldo = 0.0;
 		ResultSet rs= this.consulta("SELECT saldo, nro_tarjeta from Tarjeta INNER JOIN trans_cajas_ahorro ON Tarjeta.nro_ca = trans_cajas_ahorro.nro_ca;");
-		//NO FUNCIONA PQ EL USUARIO ATM NO PUEDE HACER CONSULTA SOBRE LA TABLA CLIENTE_CA
 		try {
-			/*if(rs.next()) {
-				saldo = Parsing.parseMonto(rs.getString("saldo"));
-				logger.info("El saldo de la caja de ahorro asociada a la tarjeta {} es {}",this.tarjeta,saldo);	
-			}*/
 			while (rs.next() && !encontroTarjeta) {	
 				if (rs.getString("nro_tarjeta").equals(tarjeta)) {
 					encontroTarjeta = true;

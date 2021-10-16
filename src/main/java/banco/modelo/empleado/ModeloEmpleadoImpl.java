@@ -1,5 +1,8 @@
 package banco.modelo.empleado;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,6 +44,35 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 	@Override
 	public boolean autenticarUsuarioAplicacion(String legajo, String password) throws Exception {
 		logger.info("Se intenta autenticar el legajo {} con password {}", legajo, password);
+		ResultSet rs= this.consulta("select legajo, password from Empleado");
+		boolean encontroTarjeta = false;
+		boolean autentica = false;
+		try {
+			while (rs.next() && !encontroTarjeta) {	
+				if (rs.getString("legajo").equals(legajo)) {
+					encontroTarjeta = true;
+					this.legajo = Integer.valueOf(legajo);
+					logger.info("El legajo {} existe en la BD", legajo);
+					if (rs.getString("password").equals(this.md5OfString(password))) {
+						logger.info("La contraseña {} corresponde con la contraseña asociada al empleado en la BD {}", password,legajo);
+						autentica = true;
+					}
+					else {
+						logger.info("La contraseña {} no corresponde con la contraseña asociada al empleado en la BD {}", password,legajo);
+					}
+				}		
+			}
+			if (!encontroTarjeta) {
+				logger.info("El legajo {} no existe en la BD", legajo);
+			}
+		}
+		catch (SQLException ex) {
+			   logger.error("SQLException: " + ex.getMessage());
+			   logger.error("SQLState: " + ex.getSQLState());
+			   logger.error("VendorError: " + ex.getErrorCode());		   
+		}
+		return autentica;
+
 		/** 
 		 * TODO Código que autentica que exista un legajo de empleado y que el password corresponda a ese legajo
 		 *      (el password guardado en la BD está en MD5) 
@@ -52,10 +84,24 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		/*
 		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
 		 */
-		this.legajo = 1;
-		return true;
 		// Fin datos estáticos de prueba.
 	}
+	
+	private String md5OfString(String input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(input.getBytes());
+            BigInteger number = new BigInteger(1, messageDigest);
+            String hashtext = number.toString(16);
+
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
+            }
+            return hashtext;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
 	
 	@Override
 	public EmpleadoBean obtenerEmpleadoLogueado() throws Exception {
