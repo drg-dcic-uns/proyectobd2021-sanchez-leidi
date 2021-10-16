@@ -6,7 +6,6 @@ import java.text.DecimalFormat;
 public final class Parsing {
 	
 	public static double parseMonto(String p_monto) throws Exception {
-		
 		if (p_monto == null) {
 			throw new Exception("El monto no puede estar vacío");
 		}
