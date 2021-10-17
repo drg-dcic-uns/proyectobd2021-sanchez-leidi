@@ -170,7 +170,8 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 					t.setTransaccionMonto(Parsing.parseMonto(rs.getString("monto")));
 				}
 				if (rs.getString("cod_caja") != null) {//PREGUNTAR QUE PONER SI EL CAMPO ES NULO
-				t.setTransaccionCodigoCaja((int) Parsing.parseMonto(rs.getString("cod_caja")));
+					t.setTransaccionCodigoCaja((int) Parsing.parseMonto(rs.getString("cod_caja")));
+				}
 				if (rs.getString("destino") != null) {
 					t.setCajaAhorroDestinoNumero((int) Parsing.parseMonto(rs.getString("destino")));
 				}

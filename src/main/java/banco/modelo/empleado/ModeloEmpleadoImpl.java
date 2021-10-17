@@ -73,7 +73,7 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		}
 		return autentica;
 
-		/** 
+		/** COMPLETED
 		 * TODO Código que autentica que exista un legajo de empleado y que el password corresponda a ese legajo
 		 *      (el password guardado en la BD está en MD5) 
 		 *      En caso exitoso deberá registrar el legajo en la propiedad legajo y retornar true.
@@ -118,7 +118,19 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 	@Override
 	public ArrayList<String> obtenerTiposDocumento() {
 		logger.info("recupera los tipos de documentos.");
-		/** 
+		ArrayList<String> tipos = new ArrayList<String>();
+		ResultSet rs= this.consulta("SELECT DISTINCT tipo_doc FROM Empleado;");
+		try {
+			while (rs.next()) {	
+				tipos.add(rs.getString("tipo_doc"));
+			}
+		}
+		catch (SQLException ex) {
+			   logger.error("SQLException: " + ex.getMessage());
+			   logger.error("SQLState: " + ex.getSQLState());
+			   logger.error("VendorError: " + ex.getErrorCode());		   
+		}
+		/** COMPLETED
 		 * TODO Debe retornar una lista de strings con los tipos de documentos. 
 		 *      Deberia propagar una excepción si hay algún error en la consulta.
 		 */
@@ -126,8 +138,6 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		/*
 		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
 		 */
-		ArrayList<String> tipos = new ArrayList<String>();
-		tipos.add("DNI");
 		return tipos;
 		// Fin datos estáticos de prueba.
 	}	
@@ -136,7 +146,28 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 	public double obtenerTasa(double monto, int cantidadMeses) throws Exception {
 
 		logger.info("Busca la tasa correspondiente a el monto {} con una cantidad de meses {}", monto, cantidadMeses);
+		ResultSet rs= this.consulta("SELECT * FROM Tasa_Prestamo;");
+		boolean encontroTasa = false;
+		double tasa = 0;
 
+		try {
+			while (rs.next() && !encontroTasa) {	
+				if (rs.getInt("periodo") == cantidadMeses && rs.getInt("monto_inf") < monto && rs.getInt("monto_sup") > monto) {
+					encontroTasa = true;
+					tasa = rs.getInt("tasa");
+					logger.info("Se encontró la tasa {} para el monto {}, con meses {} en la BD", monto, cantidadMeses);
+				}		
+			}
+			if (!encontroTasa) {
+				logger.info("No se encontró la tasa para el monto {}, con meses {} en la BD", monto, cantidadMeses);
+			}
+		}
+		catch (SQLException ex) {
+			   logger.error("SQLException: " + ex.getMessage());
+			   logger.error("SQLState: " + ex.getSQLState());
+			   logger.error("VendorError: " + ex.getErrorCode());		   
+		}
+		
 		/** 
 		 * TODO Debe buscar la tasa correspondiente según el monto y la cantidadMeses. 
 		 *      Deberia propagar una excepción si hay algún error de conexión o 
@@ -146,7 +177,6 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		/*
 		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
 		 */
-		double tasa = 23.00;
    		return tasa;
      	// Fin datos estáticos de prueba.
 	}
