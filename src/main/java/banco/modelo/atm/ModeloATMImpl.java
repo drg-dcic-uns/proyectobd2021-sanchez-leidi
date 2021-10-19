@@ -155,7 +155,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	public ArrayList<TransaccionCajaAhorroBean> cargarUltimosMovimientos(int cantidad) throws Exception
 	{
 		logger.info("Busca las ultimas {} transacciones en la BD de la tarjeta {}",cantidad, Integer.valueOf(this.tarjeta.trim()));
-		ResultSet rs= this.consulta("select fecha, hora, tipo, monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta);
+		ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta);
 		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
 		int i=0;
 		try {
@@ -163,13 +163,8 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 				TransaccionCajaAhorroBean t = new TransaccionCajaAhorroBeanImpl();
 				t.setTransaccionFechaHora(Fechas.convertirStringADate(rs.getString("fecha"),rs.getString("hora")));
 				t.setTransaccionTipo(rs.getString("tipo"));
-				if (rs.getString("tipo").equals("extraccion") || rs.getString("tipo").equals("transferencia") || rs.getString("tipo").equals("debito")) {
-					t.setTransaccionMonto(Parsing.parseMonto("-"+rs.getString("monto")));//ACA FALTA PONER EL - ANTES DEL MONTO
-				}
-				else {
-					t.setTransaccionMonto(Parsing.parseMonto(rs.getString("monto")));
-				}
-				if (rs.getString("cod_caja") != null) {//PREGUNTAR QUE PONER SI EL CAMPO ES NULO
+				t.setTransaccionMonto(Parsing.parseMonto(rs.getString("monto")));
+				if (rs.getString("cod_caja") != null) {
 					t.setTransaccionCodigoCaja((int) Parsing.parseMonto(rs.getString("cod_caja")));
 				}
 				if (rs.getString("destino") != null) {
