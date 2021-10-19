@@ -115,7 +115,7 @@ public class ControladorLoginImpl implements ControladorLogin {
 			ModeloATM modeloATM = new ModeloATMImpl();
 			
 			if (modeloATM.conectar(usuario.getUsername(), usuario.getPassword())) {
-			
+				//PONER UN TRY CATCH PARA CAPTURAR LA EXCEPCION DEL METODO
 				if (modeloATM.autenticarUsuarioAplicacion(tarjeta, String.valueOf(pin))) {
 
 					logger.info("Usuario {} autenticado","Cliente");

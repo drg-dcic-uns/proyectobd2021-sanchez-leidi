@@ -52,7 +52,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	}
 
 	@Override
-	public boolean autenticarUsuarioAplicacion(String tarjeta, String pin)	{
+	public boolean autenticarUsuarioAplicacion(String tarjeta, String pin)	{//AGREGARLE QUE TIRE EXCEPCION SE FALLA ALGO EN SQL
 		logger.info("Se intenta autenticar la tarjeta {} con pin {}", tarjeta, pin);
 		ResultSet rs= this.consulta("select nro_tarjeta, PIN from Tarjeta");
 		boolean encontroTarjeta = false;
