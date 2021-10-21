@@ -158,25 +158,9 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta);
 		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
 		int i=0;
-		try {
-			while (rs.next() && i<=cantidad) {	
-				TransaccionCajaAhorroBean t = new TransaccionCajaAhorroBeanImpl();
-				t.setTransaccionFechaHora(Fechas.convertirStringADate(rs.getString("fecha"),rs.getString("hora")));
-				t.setTransaccionTipo(rs.getString("tipo"));
-				t.setTransaccionMonto(Parsing.parseMonto(rs.getString("monto")));
-				if (rs.getString("cod_caja") != null) {
-					t.setTransaccionCodigoCaja((int) Parsing.parseMonto(rs.getString("cod_caja")));
-				}
-				if (rs.getString("destino") != null) {
-					t.setCajaAhorroDestinoNumero((int) Parsing.parseMonto(rs.getString("destino")));
-				}
-				lista.add(t);
-			}
-		}
-		catch (SQLException ex) {
-			   logger.error("SQLException: " + ex.getMessage());
-			   logger.error("SQLState: " + ex.getSQLState());
-			   logger.error("VendorError: " + ex.getErrorCode());		   
+		while (rs.next() && i<=cantidad) {	
+			i++;
+			this.insertarTransaccionCajaAhorroBeanEnLista(lista, rs);
 		}
 		/**
 		 * TODO Deberá recuperar los ultimos movimientos del cliente, la cantidad está definida en el parámetro.
@@ -196,48 +180,6 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		| 2021-09-12 | 15:00:00 | transferencia | -400.00 |       41 |       7 |
 		+------------+----------+---------------+---------+----------+---------+
  		 */
-		
-		/*ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
-		TransaccionCajaAhorroBean fila1 = new TransaccionCajaAhorroBeanImpl();
-		fila1.setTransaccionFechaHora(Fechas.convertirStringADate("2021-09-16","11:10:00"));
-		fila1.setTransaccionTipo("transferencia");
-		fila1.setTransaccionMonto(-700.00);
-		fila1.setTransaccionCodigoCaja(18);
-		fila1.setCajaAhorroDestinoNumero(32);
-		lista.add(fila1);
-
-		TransaccionCajaAhorroBean fila2 = new TransaccionCajaAhorroBeanImpl();
-		fila2.setTransaccionFechaHora(Fechas.convertirStringADate("2021-09-15","17:20:00"));
-		fila2.setTransaccionTipo("extraccion");
-		fila2.setTransaccionMonto(-200.00);
-		fila2.setTransaccionCodigoCaja(2);
-		fila2.setCajaAhorroDestinoNumero(0);	
-		lista.add(fila2);
-		
-		TransaccionCajaAhorroBean fila3 = new TransaccionCajaAhorroBeanImpl();
-		fila3.setTransaccionFechaHora(Fechas.convertirStringADate("2021-09-14","09:03:00"));
-		fila3.setTransaccionTipo("deposito");
-		fila3.setTransaccionMonto(1600.00);
-		fila3.setTransaccionCodigoCaja(2);
-		fila3.setCajaAhorroDestinoNumero(0);	
-		lista.add(fila3);		
-
-		TransaccionCajaAhorroBean fila4 = new TransaccionCajaAhorroBeanImpl();
-		fila4.setTransaccionFechaHora(Fechas.convertirStringADate("2021-09-13","13:30:00"));
-		fila4.setTransaccionTipo("debito");
-		fila4.setTransaccionMonto(-50.00);
-		fila4.setTransaccionCodigoCaja(0);
-		fila4.setCajaAhorroDestinoNumero(0);	
-		lista.add(fila4);	
-		
-		TransaccionCajaAhorroBean fila5 = new TransaccionCajaAhorroBeanImpl();
-		fila5.setTransaccionFechaHora(Fechas.convertirStringADate("2021-09-12","15:00:00"));
-		fila5.setTransaccionTipo("transferencia");
-		fila5.setTransaccionMonto(-400.00);
-		fila5.setTransaccionCodigoCaja(41);
-		fila5.setCajaAhorroDestinoNumero(7);	
-		lista.add(fila5);*/
-		
 		return lista;
 		
 		// Fin datos estáticos de prueba.
@@ -246,7 +188,12 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	@Override
 	public ArrayList<TransaccionCajaAhorroBean> cargarMovimientosPorPeriodo(Date desde, Date hasta)
 			throws Exception {
-
+		logger.info("Busca las transacciones en la BD de la tarjeta {} donde su fecha se encuentre entre {} y {}.", Integer.valueOf(this.tarjeta.trim()),desde,hasta);
+		ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta+" AND fecha >= '"+Fechas.convertirDateAStringDB(desde)+"' and fecha <= '"+Fechas.convertirDateAStringDB(hasta)+"'");
+		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
+		while (rs.next()) {	
+			this.insertarTransaccionCajaAhorroBeanEnLista(lista, rs);
+		}
 		/**
 		 * TODO Deberá recuperar los ultimos del cliente que se han realizado entre las fechas indicadas.
 		 * 		Debe capturar la excepción SQLException y propagar una Exception más amigable. 
@@ -266,53 +213,29 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		| 2021-09-12 | 15:00:00 | transferencia | -400.00 |       41 |       7 |
 		+------------+----------+---------------+---------+----------+---------+
  		 */
-		
-		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
-		TransaccionCajaAhorroBean fila1 = new TransaccionCajaAhorroBeanImpl();
-		fila1.setTransaccionFechaHora(Fechas.convertirStringADate("2021-09-16","11:10:00"));
-		fila1.setTransaccionTipo("transferencia");
-		fila1.setTransaccionMonto(-700.00);
-		fila1.setTransaccionCodigoCaja(18);
-		fila1.setCajaAhorroDestinoNumero(32);
-		lista.add(fila1);
-
-		TransaccionCajaAhorroBean fila2 = new TransaccionCajaAhorroBeanImpl();
-		fila2.setTransaccionFechaHora(Fechas.convertirStringADate("2021-09-15","17:20:00"));
-		fila2.setTransaccionTipo("extraccion");
-		fila2.setTransaccionMonto(-200.00);
-		fila2.setTransaccionCodigoCaja(2);
-		fila2.setCajaAhorroDestinoNumero(0);	
-		lista.add(fila2);
-		
-		TransaccionCajaAhorroBean fila3 = new TransaccionCajaAhorroBeanImpl();
-		fila3.setTransaccionFechaHora(Fechas.convertirStringADate("2021-09-14","09:03:00"));
-		fila3.setTransaccionTipo("deposito");
-		fila3.setTransaccionMonto(1600.00);
-		fila3.setTransaccionCodigoCaja(2);
-		fila3.setCajaAhorroDestinoNumero(0);	
-		lista.add(fila3);		
-
-		TransaccionCajaAhorroBean fila4 = new TransaccionCajaAhorroBeanImpl();
-		fila4.setTransaccionFechaHora(Fechas.convertirStringADate("2021-09-13","13:30:00"));
-		fila4.setTransaccionTipo("debito");
-		fila4.setTransaccionMonto(-50.00);
-		fila4.setTransaccionCodigoCaja(0);
-		fila4.setCajaAhorroDestinoNumero(0);	
-		lista.add(fila4);	
-		
-		TransaccionCajaAhorroBean fila5 = new TransaccionCajaAhorroBeanImpl();
-		fila5.setTransaccionFechaHora(Fechas.convertirStringADate("2021-09-12","15:00:00"));
-		fila5.setTransaccionTipo("transferencia");
-		fila5.setTransaccionMonto(-400.00);
-		fila5.setTransaccionCodigoCaja(41);
-		fila5.setCajaAhorroDestinoNumero(7);	
-		lista.add(fila5);
-		
 		logger.debug("Retorna una lista con {} elementos", lista.size());
-		
 		return lista;
-		
-		// Fin datos estáticos de prueba.
+	}
+	
+	private void insertarTransaccionCajaAhorroBeanEnLista(ArrayList<TransaccionCajaAhorroBean> lista, ResultSet rs) throws Exception {
+		TransaccionCajaAhorroBean t = new TransaccionCajaAhorroBeanImpl();
+		try {
+			t.setTransaccionFechaHora(Fechas.convertirStringADate(rs.getString("fecha"),rs.getString("hora")));
+			t.setTransaccionTipo(rs.getString("tipo"));
+			t.setTransaccionMonto(Parsing.parseMonto(rs.getString("monto")));
+			if (rs.getString("cod_caja") != null) {
+				t.setTransaccionCodigoCaja((int) Parsing.parseMonto(rs.getString("cod_caja")));
+			}
+			if (rs.getString("destino") != null) {
+				t.setCajaAhorroDestinoNumero((int) Parsing.parseMonto(rs.getString("destino")));
+			}
+			lista.add(t);
+		}
+		catch (SQLException ex) {
+		   logger.error("SQLException: " + ex.getMessage());
+		   logger.error("SQLState: " + ex.getSQLState());
+		   logger.error("VendorError: " + ex.getErrorCode());		   
+		}
 	}
 	
 	@Override
@@ -418,6 +341,17 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		
 		return toReturn;
 	}	
+	
+	private String sacarDosPuntos(String n) {
+		String toReturn = "";
+		for(int i = 0;i<n.length();i++) {
+			if(n.charAt(i)!=':') {
+				toReturn = toReturn+n.charAt(i);
+			}
+		}
+		
+		return toReturn;
+	}
 	
 	
 
