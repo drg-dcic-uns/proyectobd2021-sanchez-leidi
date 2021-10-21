@@ -340,20 +340,5 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		}
 		
 		return toReturn;
-	}	
-	
-	private String sacarDosPuntos(String n) {
-		String toReturn = "";
-		for(int i = 0;i<n.length();i++) {
-			if(n.charAt(i)!=':') {
-				toReturn = toReturn+n.charAt(i);
-			}
-		}
-		
-		return toReturn;
-	}
-	
-	
-
-	
+	}		
 }
