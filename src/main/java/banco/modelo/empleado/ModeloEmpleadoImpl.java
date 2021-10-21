@@ -152,10 +152,10 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 
 		try {
 			while (rs.next() && !encontroTasa) {	
-				if (rs.getInt("periodo") == cantidadMeses && rs.getInt("monto_inf") < monto && rs.getInt("monto_sup") > monto) {
+				if (rs.getInt("periodo") == cantidadMeses && rs.getInt("monto_inf") <= monto && rs.getInt("monto_sup") >= monto) {
 					encontroTasa = true;
 					tasa = rs.getInt("tasa");
-					logger.info("Se encontró la tasa {} para el monto {}, con meses {} en la BD", monto, cantidadMeses);
+					logger.info("Se encontró la tasa {} para el monto {}, con meses {} en la BD", rs.getInt("tasa"), monto, cantidadMeses);
 				}		
 			}
 			if (!encontroTasa) {
@@ -214,11 +214,25 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
 		 */		
 		ArrayList<Integer> cantMeses = new ArrayList<Integer>();
-		cantMeses.add(9);
-		cantMeses.add(18);
-		cantMeses.add(27);
-		cantMeses.add(54);
-		cantMeses.add(108);
+		
+		ResultSet rs= this.consulta("SELECT periodo, monto_inf, monto_sup FROM Tasa_Prestamo;");
+
+		try {
+			while (rs.next()) {	
+				if (rs.getInt("monto_inf") <= monto && rs.getInt("monto_sup") >= monto) {
+					cantMeses.add(rs.getInt("periodo"));
+					logger.info("Se encontró el mes {} para el monto {} en la BD", rs.getInt("periodo"), monto);
+				}		
+			}
+			if (cantMeses.isEmpty()) {
+				logger.info("No se encontraron meses para el monto {} en la BD", monto);
+			}
+		}
+		catch (SQLException ex) {
+			   logger.error("SQLException: " + ex.getMessage());
+			   logger.error("SQLState: " + ex.getSQLState());
+			   logger.error("VendorError: " + ex.getErrorCode());		   
+		}
 		
 		return cantMeses;
 		// Fin datos estáticos de prueba.
@@ -238,7 +252,32 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		/*
 		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
 		 */
-		return null;
+		
+		ResultSet rs= this.consulta("SELECT nro_prestamo, nro_cliente FROM Prestamo;");
+		Integer nroPrestamo = -1;
+		boolean encontro = false;
+		
+
+		try {
+			while (rs.next() && !encontro) {	
+				if (rs.getInt("nro_cliente") == nroCliente) {
+					nroPrestamo = rs.getInt("nro_prestamo");
+					encontro = true;
+					logger.info("Se encontró el prestamo vigente {} para el cliente {} en la BD", nroPrestamo, nroCliente);
+				}
+			}
+			if (!encontro) {
+				logger.info("No se encontró prestamo vigente para el cliente {} en la BD", nroCliente);
+			}
+		}
+		catch (SQLException ex) {
+			   logger.error("SQLException: " + ex.getMessage());
+			   logger.error("SQLState: " + ex.getSQLState());
+			   logger.error("VendorError: " + ex.getErrorCode());		   
+		}
+		
+		
+		return encontro ? nroPrestamo : null;
 		// Fin datos estáticos de prueba.
 	}
 
