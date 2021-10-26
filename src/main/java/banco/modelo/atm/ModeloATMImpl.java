@@ -155,7 +155,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	public ArrayList<TransaccionCajaAhorroBean> cargarUltimosMovimientos(int cantidad) throws Exception
 	{
 		logger.info("Busca las ultimas {} transacciones en la BD de la tarjeta {}",cantidad, Integer.valueOf(this.tarjeta.trim()));
-		ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta);
+		ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta+" ORDER BY fecha DESC");
 		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
 		int i=0;
 		while (rs.next() && i<=cantidad) {	
@@ -262,7 +262,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	public int parseCuenta(String p_cuenta) throws Exception {
 		
 		logger.info("Intenta realizar el parsing de un codigo de cuenta {}", p_cuenta);
-
+		//solo hay que controlar q p_cuenta sea un entero positivo
 		/**
 		 * TODO Verifica que el codigo de la cuenta sea valido. 
 		 * 		Debe capturar la excepción SQLException y propagar una Exception más amigable. 
