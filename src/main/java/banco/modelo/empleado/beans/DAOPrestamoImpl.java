@@ -73,7 +73,7 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 		
 		
 		
-		/**
+		/** COMPLETED
 		 * TODO Crear o actualizar el Prestamo segun el PrestamoBean prestamo. 
 		 *      Si prestamo tiene nroPrestamo es una actualizacion, si el nroPrestamo es null entonces es un nuevo prestamo.
 		 * 
@@ -91,7 +91,7 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 		
 		logger.info("Recupera el prestamo nro {}.", nroPrestamo);
 		
-		/**
+		/** COMPLETED? No sé donde probarlo
 		 * TODO Obtiene el prestamo según el id nroPrestamo
 		 * 
 		 * @param nroPrestamo
@@ -105,6 +105,37 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 		 */
 		PrestamoBean prestamo = null;
 			
+		try
+		{
+			Statement stmt = conexion.createStatement();
+			String consulta = "SELECT * FROM Prestamo WHERE nro_prestamo = " + prestamo.getNroPrestamo() + ";";
+					
+			ResultSet rs = stmt.executeQuery(consulta);
+			if(rs.next()) {			
+				logger.info("Se encontró el préstamo con nro {} en la BD.", nroPrestamo);
+				prestamo = new PrestamoBeanImpl();
+				prestamo.setNroPrestamo(nroPrestamo);
+				prestamo.setFecha(rs.getDate("fecha"));
+				prestamo.setCantidadMeses(rs.getInt("cant_meses"));
+				prestamo.setMonto(rs.getInt("monto"));
+				prestamo.setTasaInteres(rs.getInt("tasa_interes"));
+				prestamo.setInteres(rs.getInt("interes"));
+				prestamo.setValorCuota(rs.getInt("valor_cuota"));
+				prestamo.setLegajo(rs.getInt("legajo"));
+				prestamo.setNroCliente(rs.getInt("nro_cliente"));
+			}
+			else {							
+				logger.info("No se encontró el préstamo con nro {} en la BD.", nroPrestamo);				
+				
+			}
+		}
+		catch (SQLException ex){
+		   logger.error("SQLException: " + ex.getMessage());
+		   logger.error("SQLState: " + ex.getSQLState());
+		   logger.error("VendorError: " + ex.getErrorCode());
+		}
+		
+		/*
 		prestamo = new PrestamoBeanImpl();
 		prestamo.setNroPrestamo(4);
 		prestamo.setFecha(Fechas.convertirStringADate("2021-04-05"));
@@ -115,7 +146,8 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 		prestamo.setValorCuota(3733.33);
 		prestamo.setLegajo(2);
 		prestamo.setNroCliente(2);
-   	
+   		*/
+		
 		return prestamo;
 		// Fin datos estáticos de prueba.
 	}
