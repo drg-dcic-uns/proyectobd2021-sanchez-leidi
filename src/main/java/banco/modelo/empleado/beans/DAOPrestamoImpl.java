@@ -32,7 +32,46 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 		logger.debug("interes : {}", prestamo.getInteres());
 		logger.debug("cuota : {}", prestamo.getValorCuota());
 		logger.debug("legajo : {}", prestamo.getLegajo());
-		logger.debug("cliente : {}", prestamo.getNroCliente());
+		logger.debug("cliente : {}", prestamo.getNroCliente());	
+		
+		try
+		{
+			Statement stmt = conexion.createStatement();
+			String consulta = "SELECT CURDATE();";
+			ResultSet rs = stmt.executeQuery(consulta);
+			rs.next();
+			String fechaHora = Fechas.convertirStringSQL(rs.getString("CURDATE()"));
+			logger.debug("fechaHora : {}", fechaHora);
+			
+			consulta = "SELECT * FROM Prestamo WHERE nro_prestamo = " + prestamo.getNroPrestamo() + ";";
+					
+			rs = stmt.executeQuery(consulta);
+			PreparedStatement ps;
+			if(rs.next()) {										//Encontro un prestamo, lo actualizo
+				logger.info("Actualizo un prestamo");
+				consulta = "UPDATE prestamo SET fecha = str_to_date(\"" + fechaHora + "\", '%d/%m/%Y'), cant_meses = " + prestamo.getCantidadMeses()
+						+ ", monto = " + prestamo.getMonto() + ", tasa_interes = " + prestamo.getTasaInteres() + ", interes = " +
+						prestamo.getInteres() + ", valor_cuota = " + prestamo.getValorCuota() + ", legajo = " + prestamo.getLegajo()
+						+ ", nro_cliente = " + prestamo.getNroCliente() + " WHERE nro_prestamo = " + prestamo.getNroPrestamo() + ";";		
+				ps = conexion.prepareStatement(consulta);
+				ps.executeUpdate();
+			}
+			else {												//Si no encontro uno, es que tengo que crearlo
+				logger.info("Creo un prestamo");
+				consulta = "INSERT INTO prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date(\""
+						+ fechaHora + "\", '%d/%m/%Y'), " + prestamo.getCantidadMeses() + ", " + prestamo.getMonto() + ", " + prestamo.getTasaInteres() +
+						", " + prestamo.getInteres() + ", " + prestamo.getValorCuota() + ", " + prestamo.getLegajo() + ", " + prestamo.getNroCliente() + ");";
+				ps = conexion.prepareStatement(consulta);
+				ps.executeUpdate();
+			}
+		}
+		catch (SQLException ex){
+		   logger.error("SQLException: " + ex.getMessage());
+		   logger.error("SQLState: " + ex.getSQLState());
+		   logger.error("VendorError: " + ex.getErrorCode());
+		}
+		
+		
 		
 		/**
 		 * TODO Crear o actualizar el Prestamo segun el PrestamoBean prestamo. 

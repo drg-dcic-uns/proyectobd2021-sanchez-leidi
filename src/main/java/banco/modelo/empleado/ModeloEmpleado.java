@@ -37,7 +37,7 @@ public interface ModeloEmpleado extends Modelo {
 	 * 
 	 * @return Lista de tipos de documento
 	 */
-	public ArrayList<String> obtenerTiposDocumento();	
+	public ArrayList<String> obtenerTiposDocumento() throws Exception;	
 	
 	/**
 	 * Busca la tasa correspondiente al monto con una cantidad de meses
