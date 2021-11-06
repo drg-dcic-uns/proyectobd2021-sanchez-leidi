@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class DAOPagoImpl implements DAOPago {
 	public ArrayList<PagoBean> recuperarPagos(int nroPrestamo) throws Exception {
 		logger.info("Inicia la recuperacion de los pagos del prestamo {}", nroPrestamo);
 		
-		/** 
+		/** COMPLETED? Falta probar
 		 * TODO Recupera todos los pagos del prestamo (pagos e impagos) del prestamo nroPrestamo
 		 * 	    Si ocurre algún error deberá propagar una excepción.
 		 */
@@ -38,6 +39,31 @@ public class DAOPagoImpl implements DAOPago {
 		 */
 		ArrayList<PagoBean> lista = new ArrayList<PagoBean>();
 		
+		try
+		{
+			String consulta = "SELECT * FROM Pago WHERE nro_prestamo = " + nroPrestamo + " ;";
+			Statement stmt = conexion.createStatement();			
+			ResultSet rs = stmt.executeQuery(consulta);
+			
+			while (rs.next()) {	
+				PagoBean fila = new PagoBeanImpl();
+				fila.setNroPrestamo(rs.getInt("nro_prestamo"));
+				fila.setNroPago(rs.getInt("nro_pago"));
+				fila.setFechaVencimiento(rs.getDate("fecha_venc"));
+				fila.setFechaPago(rs.getDate("fecha_pago"));
+				lista.add(fila);
+			}
+			if (lista.isEmpty()) {
+				logger.info("No hay pagos del prestamo nro {} en la BD", nroPrestamo);
+			}
+		}
+		catch (SQLException ex){
+		   logger.error("SQLException: " + ex.getMessage());
+		   logger.error("SQLState: " + ex.getSQLState());
+		   logger.error("VendorError: " + ex.getErrorCode());
+		}
+		
+		/*
 		PagoBean fila = new PagoBeanImpl();
 		fila.setNroPrestamo(4);
 		fila.setNroPago(1);
@@ -79,6 +105,7 @@ public class DAOPagoImpl implements DAOPago {
 		fila.setFechaVencimiento(Fechas.convertirStringADate("2021-10-05"));
 		fila.setFechaPago(null);
 		lista.add(fila);
+		*/
 		
 		return lista;
 		// Fin datos estáticos de prueba.
@@ -89,7 +116,7 @@ public class DAOPagoImpl implements DAOPago {
 
 		logger.info("Inicia el pago de las {} cuotas del prestamo {}", cuotasAPagar.size(), nroPrestamo);
 
-		/**
+		/**	COMPLETED? Probarlo
 		 * TODO Registra los pagos de cuotas definidos en cuotasAPagar.
 		 * 
 		 * nroCliente asume que esta validado
@@ -97,6 +124,53 @@ public class DAOPagoImpl implements DAOPago {
 		 * cuotasAPagar Debe verificar que las cuotas a pagar no estén pagas (fecha_pago = NULL)
 		 * @throws Exception Si hubo error en la conexión
 		 */		
-
+		
+		try
+		{
+			Statement stmt = conexion.createStatement();
+			String consulta = "SELECT * FROM Pago WHERE nro_prestamo = " + nroPrestamo + ";";
+			ResultSet rs = stmt.executeQuery(consulta);
+			cuotasAPagar.sort(null);
+			int i = 0;
+			
+			PreparedStatement ps;
+			while(rs.next()) {										//Encontro un prestamo, lo actualizo
+				if(rs.getInt("nro_pago") == cuotasAPagar.get(i)) {
+					if(rs.getDate("fecha_pago") != null) {
+						i++;
+					}
+					else {
+						throw new Exception("Se seleccionó un pago ya pagado.");
+					}
+				}
+				/*
+				logger.info("Actualizo un prestamo");
+				consulta = "UPDATE Pago SET fecha = str_to_date(\"" + fechaHora + "\", '%d/%m/%Y'), cant_meses = " + prestamo.getCantidadMeses()
+						+ ", monto = " + prestamo.getMonto() + ", tasa_interes = " + prestamo.getTasaInteres() + ", interes = " +
+						prestamo.getInteres() + ", valor_cuota = " + prestamo.getValorCuota() + ", legajo = " + prestamo.getLegajo()
+						+ ", nro_cliente = " + prestamo.getNroCliente() + " WHERE nro_prestamo = " + prestamo.getNroPrestamo() + ";";		
+				ps = conexion.prepareStatement(consulta);
+				ps.executeUpdate();
+				*/
+			}
+			if(i == cuotasAPagar.size()) {
+				consulta = "SELECT CURDATE()";
+				rs = stmt.executeQuery(consulta);
+				rs.next();
+				String fecha = Fechas.convertirStringSQL(rs.getString("CURDATE()"));
+				for(Integer aux : cuotasAPagar) {
+					consulta = "UPDATE Pago SET fecha_venc = \"" + fecha + "\" WHERE nro_prestamo = " + nroPrestamo +
+							" AND nro_pago = " + aux + ";";
+					ps = conexion.prepareStatement(consulta);
+					ps.executeUpdate();
+				}
+			}
+			
+		}
+		catch (SQLException ex){
+		   logger.error("SQLException: " + ex.getMessage());
+		   logger.error("SQLState: " + ex.getSQLState());
+		   logger.error("VendorError: " + ex.getErrorCode());
+		}
 	}
 }

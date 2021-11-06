@@ -40,8 +40,8 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 			String consulta = "SELECT CURDATE();";
 			ResultSet rs = stmt.executeQuery(consulta);
 			rs.next();
-			String fechaHora = Fechas.convertirStringSQL(rs.getString("CURDATE()"));
-			logger.debug("fechaHora : {}", fechaHora);
+			String fecha = Fechas.convertirStringSQL(rs.getString("CURDATE()"));
+			logger.debug("fechaHora : {}", fecha);
 			
 			consulta = "SELECT * FROM Prestamo WHERE nro_prestamo = " + prestamo.getNroPrestamo() + ";";
 					
@@ -49,7 +49,7 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 			PreparedStatement ps;
 			if(rs.next()) {										//Encontro un prestamo, lo actualizo
 				logger.info("Actualizo un prestamo");
-				consulta = "UPDATE prestamo SET fecha = str_to_date(\"" + fechaHora + "\", '%d/%m/%Y'), cant_meses = " + prestamo.getCantidadMeses()
+				consulta = "UPDATE Prestamo SET fecha = str_to_date(\"" + fecha + "\", '%d/%m/%Y'), cant_meses = " + prestamo.getCantidadMeses()
 						+ ", monto = " + prestamo.getMonto() + ", tasa_interes = " + prestamo.getTasaInteres() + ", interes = " +
 						prestamo.getInteres() + ", valor_cuota = " + prestamo.getValorCuota() + ", legajo = " + prestamo.getLegajo()
 						+ ", nro_cliente = " + prestamo.getNroCliente() + " WHERE nro_prestamo = " + prestamo.getNroPrestamo() + ";";		
@@ -58,8 +58,8 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 			}
 			else {												//Si no encontro uno, es que tengo que crearlo
 				logger.info("Creo un prestamo");
-				consulta = "INSERT INTO prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date(\""
-						+ fechaHora + "\", '%d/%m/%Y'), " + prestamo.getCantidadMeses() + ", " + prestamo.getMonto() + ", " + prestamo.getTasaInteres() +
+				consulta = "INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date(\""
+						+ fecha + "\", '%d/%m/%Y'), " + prestamo.getCantidadMeses() + ", " + prestamo.getMonto() + ", " + prestamo.getTasaInteres() +
 						", " + prestamo.getInteres() + ", " + prestamo.getValorCuota() + ", " + prestamo.getLegajo() + ", " + prestamo.getNroCliente() + ");";
 				ps = conexion.prepareStatement(consulta);
 				ps.executeUpdate();
@@ -108,7 +108,7 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 		try
 		{
 			Statement stmt = conexion.createStatement();
-			String consulta = "SELECT * FROM Prestamo WHERE nro_prestamo = " + prestamo.getNroPrestamo() + ";";
+			String consulta = "SELECT * FROM Prestamo WHERE nro_prestamo = " + nroPrestamo + ";";
 					
 			ResultSet rs = stmt.executeQuery(consulta);
 			if(rs.next()) {			

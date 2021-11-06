@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ public class DAOClienteMorosoImpl implements DAOClienteMoroso {
 		DAOPrestamo daoPrestamo = new DAOPrestamoImpl(this.conexion);		
 		DAOCliente daoCliente = new DAOClienteImpl(this.conexion);
 		
-		/**
+		/** COMPLETED, PREGUNTAR EXCEPCIONES
 		 * TODO Deberá recuperar un listado de clientes morosos los cuales consisten de un bean ClienteMorosoBeanImpl
 		 *      deberá indicar para dicho cliente cual es el prestamo sobre el que está moroso y la cantidad de cuotas que 
 		 *      tiene atrasadas. En todos los casos deberá generar excepciones que será capturadas por el controlador
@@ -41,6 +42,23 @@ public class DAOClienteMorosoImpl implements DAOClienteMoroso {
 		PrestamoBean prestamo = null;
 		ClienteBean cliente = null;
 		
+		Statement stmt = conexion.createStatement();
+		String consulta = "SELECT * FROM (SELECT nro_prestamo, COUNT(nro_prestamo) cuotas_atrasadas FROM "
+				+ " pago WHERE fecha_venc < CURDATE() AND fecha_pago is NULL GROUP BY nro_prestamo) pp WHERE cuotas_atrasadas >= 2";
+		ResultSet rs = stmt.executeQuery(consulta);
+		ClienteMorosoBean morosoEncontrado;
+		
+		while(rs.next()) {
+			morosoEncontrado = new ClienteMorosoBeanImpl();
+			prestamo = daoPrestamo.recuperarPrestamo(rs.getInt("nro_prestamo"));
+			cliente = daoCliente.recuperarCliente(prestamo.getNroCliente());
+			morosoEncontrado.setCliente(cliente);
+			morosoEncontrado.setPrestamo(prestamo);
+			morosoEncontrado.setCantidadCuotasAtrasadas(rs.getInt("cuotas_atrasadas"));
+			morosos.add(morosoEncontrado);
+		}
+				
+		/*
 		ClienteMorosoBean moroso1 = new ClienteMorosoBeanImpl();
 		prestamo = daoPrestamo.recuperarPrestamo(1); // El prestamo 1 tiene cuotas atrasadas - valor que deberá ser obtenido por la SQL
 		cliente = daoCliente.recuperarCliente(prestamo.getNroCliente());
@@ -56,6 +74,7 @@ public class DAOClienteMorosoImpl implements DAOClienteMoroso {
 		moroso2.setPrestamo(prestamo);
 		moroso2.setCantidadCuotasAtrasadas(6);  //valor que deberá ser obtenido por la SQL
 		morosos.add(moroso2);
+		*/
 		
 		return morosos;		
 		// Fin datos estáticos de prueba.

@@ -66,20 +66,8 @@ INSERT INTO Tasa_Plazo_Fijo VALUES (135, 157.75, 583.85, 65.46);
 #Prestamos
 INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('14/07/2021', '%d/%m/%Y'), 5, 50000.00, 12.00, 200.00, 1500.00, 1, 1);
 INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('25/08/2021', '%d/%m/%Y'), 3, 25000.00, 8.00, 159.00, 1256.00, 4, 3);
-INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('17/02/2021', '%d/%m/%Y'), 12, 100000.00, 25.00, 2000.00, 2500.00, 2, 3);
-INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('12/10/2020', '%d/%m/%Y'), 2, 15000.00, 9.00, 500.00, 5500.00, 5, 4);
 INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('21/05/2021', '%d/%m/%Y'), 2, 5000.00, 5.00, 120.00, 2500.00, 10, 8);
-INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('30/03/2021', '%d/%m/%Y'), 7, 75000.00, 25.00, 5700.00, 1500.00, 7, 9);
-INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('14/07/2021', '%d/%m/%Y'), 5, 50000.00, 12.00, 200.00, 1500.00, 13, 7);
 INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('07/09/2021', '%d/%m/%Y'), 3, 12000.00, 15.00, 500.00, 1750.00, 12, 6);
-#INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('13/08/2021', '%d/%m/%Y'), 4, 12000.00, 7.00, 125.00, 700.00, 10, 5);
-#INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('27/11/2020', '%d/%m/%Y'), 3, 5500.00, 5.00, 100.00, 250.00, 7, 4);
-#INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('25/05/2021', '%d/%m/%Y'), 9, 125000.00, 26.00, 2200.00, 5500.00, 3, 3);
-#INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('28/02/2021', '%d/%m/%Y'), 6, 45000.00, 20.00, 500.00, 2500.00, 9, 3);
-#INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('23/09/2021', '%d/%m/%Y'), 3, 12000.00, 9.00, 400.00, 1200.00, 7, 2);
-#INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('03/06/2021', '%d/%m/%Y'), 6, 15500.00, 7.00, 550.00, 1900.00, 6, 4);
-#INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('15/11/2021', '%d/%m/%Y'), 7, 12500.00, 15.00, 1400.00, 2200.00, 8, 6);
-#INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuota, legajo, nro_cliente) VALUES (str_to_date('07/07/2021', '%d/%m/%Y'), 4, 5500.00, 5.00, 120.00, 1100.00, 11, 7);
 
 
 #Tasa Prestamos
@@ -98,20 +86,19 @@ INSERT INTO Tasa_Prestamo VALUES (12, 500.00, 1000.00, 70.00);
 INSERT INTO Tasa_Prestamo VALUES (12, 1000.00, 2000.00, 80.00);
 
 
-
 #Pagos
-INSERT INTO Pago VALUES (4, 53, str_to_date('03/06/2021', '%d/%m/%Y'), str_to_date('14/05/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (5, 14, str_to_date('21/05/2021', '%d/%m/%Y'), str_to_date('19/05/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (16, 72, str_to_date('25/03/2021', '%d/%m/%Y'), str_to_date('01/03/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (13, 54, str_to_date('12/12/2021', '%d/%m/%Y'), str_to_date('05/11/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (7, 42, str_to_date('21/12/2020', '%d/%m/%Y'), str_to_date('01/10/2020', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (1, 21, str_to_date('30/06/2021', '%d/%m/%Y'), str_to_date('15/06/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (11, 86, str_to_date('01/01/2021', '%d/%m/%Y'), str_to_date('27/11/2020', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (9, 74, str_to_date('28/02/2021', '%d/%m/%Y'), str_to_date('14/01/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (2, 99, str_to_date('17/09/2021', '%d/%m/%Y'), str_to_date('21/06/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (15, 40, str_to_date('13/10/2021', '%d/%m/%Y'), str_to_date('01/10/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (6, 76, str_to_date('19/12/2021', '%d/%m/%Y'), str_to_date('21/09/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (10, 53, str_to_date('23/11/2021', '%d/%m/%Y'), str_to_date('30/09/2021', '%d/%m/%Y'));
+INSERT INTO Pago VALUES (1, 1, str_to_date('14/03/2021', '%d/%m/%Y'), str_to_date('16/02/2021', '%d/%m/%Y'));
+INSERT INTO Pago VALUES (1, 2, str_to_date('14/04/2021', '%d/%m/%Y'), str_to_date('25/03/2021', '%d/%m/%Y'));
+INSERT INTO Pago VALUES (1, 3, str_to_date('14/05/2021', '%d/%m/%Y'), null);
+INSERT INTO Pago VALUES (1, 4, str_to_date('14/06/2021', '%d/%m/%Y'), null);
+INSERT INTO Pago VALUES (1, 5, str_to_date('14/07/2021', '%d/%m/%Y'), null);
+INSERT INTO Pago VALUES (2, 1, str_to_date('25/09/2021', '%d/%m/%Y'), null);
+INSERT INTO Pago VALUES (2, 2, str_to_date('25/09/2021', '%d/%m/%Y'), null);
+INSERT INTO Pago VALUES (2, 3, str_to_date('25/09/2021', '%d/%m/%Y'), null);
+INSERT INTO Pago VALUES (3, 1, str_to_date('21/06/2021', '%d/%m/%Y'), str_to_date('17/06/2021', '%d/%m/%Y'));
+INSERT INTO Pago VALUES (3, 2, str_to_date('21/06/2021', '%d/%m/%Y'), null);
+INSERT INTO Pago VALUES (4, 1, str_to_date('07/10/2021', '%d/%m/%Y'), str_to_date('6/10/2021', '%d/%m/%Y'));
+INSERT INTO Pago VALUES (4, 2, str_to_date('07/11/2021', '%d/%m/%Y'), str_to_date('5/11/2021', '%d/%m/%Y'));
 
 #Cajas Ahorro
 INSERT INTO Caja_Ahorro(CBU, saldo) VALUES (456132189756432187, 5000.00);
