@@ -241,18 +241,20 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	@Override
 	public Double extraer(Double monto) throws Exception {
 		logger.info("Realiza la extraccion de ${} sobre la cuenta", monto);
-		
+		ResultSet rs= this.consulta("CALL extraer("+monto+","+this.tarjeta+");");
 		/**
 		 * TODO Deberá extraer de la cuenta del cliente el monto especificado (ya validado) y de obtener el saldo de la cuenta como resultado.
 		 * 		Debe capturar la excepción SQLException y propagar una Exception más amigable. 
 		 * 		Debe generar excepción si las propiedades codigoATM o tarjeta no tienen valores
 		 */		
-		
-		String resultado = ModeloATM.EXTRACCION_EXITOSA;
+		rs.next();
+		String resultado = rs.getString("resultado");
 		
 		if (!resultado.equals(ModeloATM.EXTRACCION_EXITOSA)) {
+			logger.info("La extracción no fue exitosa.");
 			throw new Exception(resultado);
 		}
+		logger.info("La extracción fue exitosa.");
 		return this.obtenerSaldo();
 
 	}
