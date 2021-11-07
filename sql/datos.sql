@@ -87,18 +87,11 @@ INSERT INTO Tasa_Prestamo VALUES (12, 1000.00, 2000.00, 80.00);
 
 
 #Pagos
-INSERT INTO Pago VALUES (1, 1, str_to_date('14/03/2021', '%d/%m/%Y'), str_to_date('16/02/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (1, 2, str_to_date('14/04/2021', '%d/%m/%Y'), str_to_date('25/03/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (1, 3, str_to_date('14/05/2021', '%d/%m/%Y'), null);
-INSERT INTO Pago VALUES (1, 4, str_to_date('14/06/2021', '%d/%m/%Y'), null);
-INSERT INTO Pago VALUES (1, 5, str_to_date('14/07/2021', '%d/%m/%Y'), null);
-INSERT INTO Pago VALUES (2, 1, str_to_date('25/09/2021', '%d/%m/%Y'), null);
-INSERT INTO Pago VALUES (2, 2, str_to_date('25/09/2021', '%d/%m/%Y'), null);
-INSERT INTO Pago VALUES (2, 3, str_to_date('25/09/2021', '%d/%m/%Y'), null);
-INSERT INTO Pago VALUES (3, 1, str_to_date('21/06/2021', '%d/%m/%Y'), str_to_date('17/06/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (3, 2, str_to_date('21/06/2021', '%d/%m/%Y'), null);
-INSERT INTO Pago VALUES (4, 1, str_to_date('07/10/2021', '%d/%m/%Y'), str_to_date('6/10/2021', '%d/%m/%Y'));
-INSERT INTO Pago VALUES (4, 2, str_to_date('07/11/2021', '%d/%m/%Y'), str_to_date('5/11/2021', '%d/%m/%Y'));
+UPDATE Pago SET fecha_pago = str_to_date('16/02/2021', '%d/%m/%Y') WHERE nro_prestamo = 1 AND nro_pago = 1;
+UPDATE Pago SET fecha_pago = str_to_date('25/03/2021', '%d/%m/%Y') WHERE nro_prestamo = 1 AND nro_pago = 2;
+UPDATE Pago SET fecha_pago = str_to_date('17/06/2021', '%d/%m/%Y') WHERE nro_prestamo = 3 AND nro_pago = 1;
+UPDATE Pago SET fecha_pago = str_to_date('6/10/2021', '%d/%m/%Y') WHERE nro_prestamo = 4 AND nro_pago = 1;
+UPDATE Pago SET fecha_pago = str_to_date('6/11/2021', '%d/%m/%Y') WHERE nro_prestamo = 4 AND nro_pago = 2;
 
 #Cajas Ahorro
 INSERT INTO Caja_Ahorro(CBU, saldo) VALUES (456132189756432187, 5000.00);

@@ -406,6 +406,23 @@ CREATE PROCEDURE extraer(IN monto DECIMAL(16,2), IN tarjeta BIGINT(16))
  END; !
 delimiter ; # reestablece el “;” como delimitador
 
+delimiter ! # define “!” como delimitador
+CREATE TRIGGER prestamos_insert
+	AFTER INSERT ON Prestamo
+	FOR EACH ROW
+	BEGIN
+		DECLARE i, id INT;
+		DECLARE fechaPrestamo DATE;
+		SET id = NEW.nro_prestamo;
+		SET i = NEW.cant_meses;
+		SET fechaPrestamo = NEW.fecha;
+		
+		WHILE i > 0 DO
+			INSERT INTO Pago(nro_prestamo, nro_pago, fecha_venc) VALUES (id, i, DATE_ADD(fechaPrestamo, INTERVAL i MONTH));
+			SET i = i - 1;
+		END WHILE;
+	END; !
+delimiter ;
 
 # el usuario 'atm' puede ejecutar el stored procedure extraer
     GRANT execute ON procedure banco.extraer TO 'atm'@'%';

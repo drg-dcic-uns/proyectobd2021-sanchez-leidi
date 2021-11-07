@@ -134,9 +134,9 @@ public class DAOPagoImpl implements DAOPago {
 			int i = 0;
 			
 			PreparedStatement ps;
-			while(rs.next()) {										//Encontro un prestamo, lo actualizo
+			while(rs.next() && !(i == cuotasAPagar.size())) {					//Mientras tenga cuotas que ver
 				if(rs.getInt("nro_pago") == cuotasAPagar.get(i)) {
-					if(rs.getDate("fecha_pago") != null) {
+					if(rs.getDate("fecha_pago") == null) {
 						i++;
 					}
 					else {
@@ -159,7 +159,7 @@ public class DAOPagoImpl implements DAOPago {
 				rs.next();
 				String fecha = Fechas.convertirStringSQL(rs.getString("CURDATE()"));
 				for(Integer aux : cuotasAPagar) {
-					consulta = "UPDATE Pago SET fecha_venc = \"" + fecha + "\" WHERE nro_prestamo = " + nroPrestamo +
+					consulta = "UPDATE Pago SET fecha_pago = CURDATE() WHERE nro_prestamo = " + nroPrestamo +
 							" AND nro_pago = " + aux + ";";
 					ps = conexion.prepareStatement(consulta);
 					ps.executeUpdate();

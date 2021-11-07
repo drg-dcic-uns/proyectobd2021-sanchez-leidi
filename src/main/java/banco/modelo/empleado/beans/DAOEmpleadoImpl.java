@@ -40,7 +40,7 @@ public class DAOEmpleadoImpl implements DAOEmpleado {
 		try
 		{
 			Statement stmt = conexion.createStatement();
-			String consulta = "SELECT * FROM Prestamo WHERE nro_prestamo = " + legajo + ";";
+			String consulta = "SELECT * FROM Empleado WHERE legajo = " + legajo + ";";
 					
 			ResultSet rs = stmt.executeQuery(consulta);
 			if(rs.next()) {			
