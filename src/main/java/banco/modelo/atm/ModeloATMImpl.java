@@ -280,7 +280,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	@Override
 	public Double transferir(Double monto, int cajaDestino) throws Exception {
 		logger.info("Realiza la transferencia de ${} sobre a la cuenta {}", monto, cajaDestino);
-		ResultSet rs= this.consulta("CALL transferir(" + monto + "," + this.tarjeta + ", " + cajaDestino + ");");
+		ResultSet rs= this.consulta("CALL transferir(" + monto + "," + this.tarjeta + ", " + cajaDestino +","+this.codigoATM+");");
 		
 		/**
 		 * TODO Deberá extraer de la cuenta del cliente el monto especificado (ya validado) y de obtener el saldo de la cuenta como resultado.
@@ -291,7 +291,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		rs.next();
 		String resultado = rs.getString("resultado");
 		
-		if (!resultado.equals(ModeloATM.EXTRACCION_EXITOSA)) {
+		if (!resultado.equals(ModeloATM.TRANSFERENCIA_EXITOSA)) {
 			logger.info("La transacción no fue exitosa.");
 			throw new Exception(resultado);
 		}
