@@ -155,7 +155,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	public ArrayList<TransaccionCajaAhorroBean> cargarUltimosMovimientos(int cantidad) throws Exception
 	{
 		logger.info("Busca las ultimas {} transacciones en la BD de la tarjeta {}",cantidad, Integer.valueOf(this.tarjeta.trim()));
-		ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta+" ORDER BY fecha DESC");
+		ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta+" and tarjeta.nro_ca = trans_cajas_ahorro.nro_ca ORDER BY fecha DESC");
 		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
 		int i=0;
 		while (rs.next() && i<=cantidad) {	
