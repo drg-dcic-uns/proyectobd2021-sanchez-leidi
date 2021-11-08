@@ -136,7 +136,7 @@ INSERT INTO Transaccion(fecha, hora, monto) VALUES (str_to_date('21/11/2021', '%
 INSERT INTO Transaccion(fecha, hora, monto) VALUES (str_to_date('01/09/2021', '%d/%m/%Y'), '25:59', 500.00);
 
 #Cajas
-INSERT INTO Caja VALUES ();
+INSERT INTO Caja VALUES (100); #Hay que agregarla, ya que es el codigoATM
 INSERT INTO Caja VALUES ();
 INSERT INTO Caja VALUES ();
 INSERT INTO Caja VALUES ();
