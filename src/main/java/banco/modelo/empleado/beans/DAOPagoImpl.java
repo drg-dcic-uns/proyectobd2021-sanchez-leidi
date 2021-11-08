@@ -63,49 +63,6 @@ public class DAOPagoImpl implements DAOPago {
 		   logger.error("VendorError: " + ex.getErrorCode());
 		}
 		
-		/*
-		PagoBean fila = new PagoBeanImpl();
-		fila.setNroPrestamo(4);
-		fila.setNroPago(1);
-		fila.setFechaVencimiento(Fechas.convertirStringADate("2021-05-05"));
-		fila.setFechaPago(Fechas.convertirStringADate("2021-05-10"));
-		lista.add(fila);
-		
-		fila = new PagoBeanImpl();
-		fila.setNroPrestamo(4);
-		fila.setNroPago(2);
-		fila.setFechaVencimiento(Fechas.convertirStringADate("2021-06-05"));
-		fila.setFechaPago(Fechas.convertirStringADate("2021-06-11"));
-		lista.add(fila);
-		
-		fila = new PagoBeanImpl();
-		fila.setNroPrestamo(4);
-		fila.setNroPago(3);
-		fila.setFechaVencimiento(Fechas.convertirStringADate("2021-07-05"));
-		fila.setFechaPago(Fechas.convertirStringADate("2021-07-15"));
-		lista.add(fila);
-		
-		fila = new PagoBeanImpl();
-		fila.setNroPrestamo(4);
-		fila.setNroPago(4);
-		fila.setFechaVencimiento(Fechas.convertirStringADate("2021-08-05"));
-		fila.setFechaPago(null);
-		lista.add(fila);
-
-		fila = new PagoBeanImpl();
-		fila.setNroPrestamo(4);
-		fila.setNroPago(5);
-		fila.setFechaVencimiento(Fechas.convertirStringADate("2021-09-05"));
-		fila.setFechaPago(null);
-		lista.add(fila);
-
-		fila = new PagoBeanImpl();
-		fila.setNroPrestamo(4);
-		fila.setNroPago(6);
-		fila.setFechaVencimiento(Fechas.convertirStringADate("2021-10-05"));
-		fila.setFechaPago(null);
-		lista.add(fila);
-		*/
 		
 		return lista;
 		// Fin datos estáticos de prueba.
@@ -143,15 +100,6 @@ public class DAOPagoImpl implements DAOPago {
 						throw new Exception("Se seleccionó un pago ya pagado.");
 					}
 				}
-				/*
-				logger.info("Actualizo un prestamo");
-				consulta = "UPDATE Pago SET fecha = str_to_date(\"" + fechaHora + "\", '%d/%m/%Y'), cant_meses = " + prestamo.getCantidadMeses()
-						+ ", monto = " + prestamo.getMonto() + ", tasa_interes = " + prestamo.getTasaInteres() + ", interes = " +
-						prestamo.getInteres() + ", valor_cuota = " + prestamo.getValorCuota() + ", legajo = " + prestamo.getLegajo()
-						+ ", nro_cliente = " + prestamo.getNroCliente() + " WHERE nro_prestamo = " + prestamo.getNroPrestamo() + ";";		
-				ps = conexion.prepareStatement(consulta);
-				ps.executeUpdate();
-				*/
 			}
 			if(i == cuotasAPagar.size()) {
 				consulta = "SELECT CURDATE()";

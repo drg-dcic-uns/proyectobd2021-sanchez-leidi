@@ -407,6 +407,55 @@ CREATE PROCEDURE extraer(IN monto DECIMAL(16,2), IN tarjeta BIGINT(16))
 delimiter ; # reestablece el “;” como delimitador
 
 delimiter ! # define “!” como delimitador
+CREATE PROCEDURE transferir(IN monto DECIMAL(16,2), IN tarjeta BIGINT(16), IN caja_destino INT(5))
+  BEGIN
+     # Declaro una variable local saldo_actual
+     DECLARE saldo_actual DECIMAL(16,2);
+     # Declaro una variable local caja_ahorro
+     DECLARE caja_ahorro INT;
+	# Declaro variables locales para recuperar los errores 
+	 DECLARE codigo_SQL  CHAR(5) DEFAULT '00000';	 
+	 DECLARE codigo_MYSQL INT DEFAULT 0;
+	 DECLARE mensaje_error TEXT;
+
+
+      DECLARE EXIT HANDLER FOR SQLEXCEPTION 	 	 
+	  BEGIN #En caso de una excepción SQLEXCEPTION retrocede la transacción y
+         	# devuelve el código de error especifico de MYSQL (MYSQL_ERRNO), 
+			# el código de error SQL  (SQLSTATE) y el mensaje de error  	  
+	    # "GET DIAGNOSTICS" solo disponible a partir de la versión 5.6, 
+		# más info en: http://dev.mysql.com/doc/refman/5.6/en/get-diagnostics.html
+		GET DIAGNOSTICS CONDITION 1  codigo_MYSQL= MYSQL_ERRNO,  
+		                             codigo_SQL= RETURNED_SQLSTATE, 
+									 mensaje_error= MESSAGE_TEXT;
+	    SELECT 'SQLEXCEPTION!, transacción abortada' AS resultado, 
+		        codigo_MySQL, codigo_SQL,  mensaje_error;		
+        ROLLBACK;
+	  END;
+
+     START TRANSACTION;    # Comienza la transacción
+        SELECT nro_ca INTO caja_ahorro FROM tarjeta WHERE nro_tarjeta = tarjeta; 					#Guardo la caja de ahorro asociado al número de tarjeta
+		SELECT saldo INTO saldo_actual FROM caja_ahorro WHERE nro_ca = caja_ahorro FOR UPDATE; 		#Guardo el saldo actual de la caja de ahorro y bloqueo exclusivamente
+			IF caja_destino IN (SELECT nro_ca FROM caja_ahorro) THEN
+				IF NOT caja_ahorro = caja_destino THEN												#No puedo realizar una transferencia a la misma cuenta
+					IF saldo_actual >= monto THEN 													#Si el saldo de la caja de ahorro es suficiente como realizar la transacción, la realizo
+						UPDATE caja_ahorro SET saldo = saldo - monto WHERE nro_ca = caja_ahorro;	#Actualizo el saldo de la caja de ahorro
+						UPDATE caja_ahorro SET saldo = saldo + monto WHERE nro_ca = caja_destino;	#Actualizo el saldo de la caja destino
+						SELECT 'Transaccion Exitosa' AS resultado;
+					ELSE
+						SELECT 'Saldo insuficiente para realizar la transacción.' AS resultado;
+					END IF;
+				ELSE
+					SELECT 'Caja destino es la misma que origen.' AS resultado;
+				END IF;
+			ELSE
+				SELECT 'Caja destino no existente.' AS resultado;
+			END IF;
+     COMMIT;   # Comete la transacción
+ END; !
+delimiter ; # reestablece el “;” como delimitador
+
+delimiter ! # define “!” como delimitador
 CREATE TRIGGER prestamos_insert
 	AFTER INSERT ON Prestamo
 	FOR EACH ROW
@@ -426,4 +475,5 @@ delimiter ;
 
 # el usuario 'atm' puede ejecutar el stored procedure extraer
     GRANT execute ON procedure banco.extraer TO 'atm'@'%';
+	GRANT EXECUTE ON PROCEDURE banco.transferir TO 'atm'@'%';
    

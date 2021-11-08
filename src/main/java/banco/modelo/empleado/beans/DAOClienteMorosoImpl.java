@@ -57,24 +57,6 @@ public class DAOClienteMorosoImpl implements DAOClienteMoroso {
 			morosoEncontrado.setCantidadCuotasAtrasadas(rs.getInt("cuotas_atrasadas"));
 			morosos.add(morosoEncontrado);
 		}
-				
-		/*
-		ClienteMorosoBean moroso1 = new ClienteMorosoBeanImpl();
-		prestamo = daoPrestamo.recuperarPrestamo(1); // El prestamo 1 tiene cuotas atrasadas - valor que deberá ser obtenido por la SQL
-		cliente = daoCliente.recuperarCliente(prestamo.getNroCliente());
-		moroso1.setCliente(cliente);
-		moroso1.setPrestamo(prestamo);
-		moroso1.setCantidadCuotasAtrasadas(2);  //valor que deberá ser obtenido por la SQL
-		morosos.add(moroso1);
-
-		ClienteMorosoBean moroso2 = new ClienteMorosoBeanImpl();
-		prestamo = daoPrestamo.recuperarPrestamo(3); // El prestamo 3 tiene cuotas atrasadas - valor que deberá ser obtenido por la SQL
-		cliente = daoCliente.recuperarCliente(prestamo.getNroCliente());
-		moroso2.setCliente(cliente);
-		moroso2.setPrestamo(prestamo);
-		moroso2.setCantidadCuotasAtrasadas(6);  //valor que deberá ser obtenido por la SQL
-		morosos.add(moroso2);
-		*/
 		
 		return morosos;		
 		// Fin datos estáticos de prueba.
