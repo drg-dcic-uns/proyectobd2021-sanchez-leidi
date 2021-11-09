@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import banco.modelo.ModeloImpl;
 import banco.utils.Fechas;
-import banco.utils.Parsing;
 
 
 public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
@@ -149,7 +148,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		logger.info("Busca las ultimas {} transacciones en la BD de la tarjeta {}",cantidad, Integer.valueOf(this.tarjeta.trim()));
 		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
 		try {
-			ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta+" ORDER BY fecha DESC, hora DESC");
+			ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta  JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta+" and tarjeta.nro_ca = trans_cajas_ahorro.nro_ca ORDER BY fecha DESC, hora DESC");
 			int i=0;
 			while (rs.next() && i<=cantidad) {	
 				i++;
@@ -160,7 +159,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 			logger.error("SQLException: " + ex.getMessage());
 			logger.error("SQLState: " + ex.getSQLState());
 			logger.error("VendorError: " + ex.getErrorCode());
-			   throw new Exception("Falló la operación de cargar ultimos movimientos.");
+			throw new Exception("Falló la operación de cargar ultimos movimientos.");
 		}
 		return lista;
 	}	
@@ -171,11 +170,19 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 			logger.error("La fecha hasta es menor a la fecha desde");
 			throw new Exception("Las fechas ingresadas son incorrectas.");
 		}
-		logger.info("Busca las transacciones en la BD de la tarjeta {} donde su fecha se encuentre entre {} y {}.", Integer.valueOf(this.tarjeta.trim()),desde,hasta);
-		ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta+" and tarjeta.nro_ca = trans_cajas_ahorro.nro_ca AND fecha >= '"+Fechas.convertirDateAStringDB(desde)+"' and fecha <= '"+Fechas.convertirDateAStringDB(hasta)+"'");
 		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
-		while (rs.next()) {	
-			this.insertarTransaccionCajaAhorroBeanEnLista(lista, rs);
+		try {
+			logger.info("Busca las transacciones en la BD de la tarjeta {} donde su fecha se encuentre entre {} y {}.", Integer.valueOf(this.tarjeta.trim()),desde,hasta);
+			ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta+" and tarjeta.nro_ca = trans_cajas_ahorro.nro_ca AND fecha >= '"+Fechas.convertirDateAStringDB(desde)+"' and fecha <= '"+Fechas.convertirDateAStringDB(hasta)+"'");
+			while (rs.next()) {	
+				this.insertarTransaccionCajaAhorroBeanEnLista(lista, rs);
+			}
+		}
+		catch(SQLException ex) {
+			logger.error("SQLException: " + ex.getMessage());
+			logger.error("SQLState: " + ex.getSQLState());
+			logger.error("VendorError: " + ex.getErrorCode());
+			throw new Exception("Falló la operación de cargar ultimos movimientos.");
 		}
 		logger.debug("Retorna una lista con {} elementos", lista.size());
 		return lista;
@@ -183,17 +190,24 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	
 	private void insertarTransaccionCajaAhorroBeanEnLista(ArrayList<TransaccionCajaAhorroBean> lista, ResultSet rs) throws Exception {
 		TransaccionCajaAhorroBean t = new TransaccionCajaAhorroBeanImpl();
-		t.setTransaccionFechaHora(Fechas.convertirStringADate(rs.getString("fecha"),rs.getString("hora")));
-		t.setTransaccionTipo(rs.getString("tipo"));
-		t.setTransaccionMonto(parseMonto(rs.getString("monto")));
-		if (rs.getString("cod_caja") != null) {
-			t.setTransaccionCodigoCaja((int) Parsing.parseMonto(rs.getString("cod_caja")));
+		try {
+			t.setTransaccionFechaHora(Fechas.convertirStringADate(rs.getString("fecha"),rs.getString("hora")));
+			t.setTransaccionTipo(rs.getString("tipo"));
+			t.setTransaccionMonto(rs.getDouble("monto"));
+			if (rs.getString("cod_caja") != null) {
+				t.setTransaccionCodigoCaja(rs.getInt("cod_caja"));
+			}
+			if (rs.getString("destino") != null) {
+				t.setCajaAhorroDestinoNumero(rs.getInt("destino"));
+			}
+			lista.add(t);
 		}
-		if (rs.getString("destino") != null) {
-			t.setCajaAhorroDestinoNumero((int) Parsing.parseMonto(rs.getString("destino")));
+		catch (SQLException ex) {
+		   logger.error("SQLException: " + ex.getMessage());
+		   logger.error("SQLState: " + ex.getSQLState());
+		   logger.error("VendorError: " + ex.getErrorCode());		
+		   throw new Exception("Falló la operación cargar movimientos.");
 		}
-		lista.add(t);
-		//TODO FIJARSE THROWS
 	}
 	
 	@Override

@@ -27,21 +27,9 @@ public class DAOClienteMorosoImpl implements DAOClienteMoroso {
 		DAOPrestamo daoPrestamo = new DAOPrestamoImpl(this.conexion);		
 		DAOCliente daoCliente = new DAOClienteImpl(this.conexion);
 		
-		/** COMPLETED, PREGUNTAR EXCEPCIONES
-		 * TODO Deberá recuperar un listado de clientes morosos los cuales consisten de un bean ClienteMorosoBeanImpl
-		 *      deberá indicar para dicho cliente cual es el prestamo sobre el que está moroso y la cantidad de cuotas que 
-		 *      tiene atrasadas. En todos los casos deberá generar excepciones que será capturadas por el controlador
-		 *      si hay algún error que necesita ser informado al usuario. 
-		 */
-		
-		/*
-		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
-		 */
 		ArrayList<ClienteMorosoBean> morosos = new ArrayList<ClienteMorosoBean>();
 		PrestamoBean prestamo = null;
 		ClienteBean cliente = null;
-		
-		
 		
 		try {
 			Statement stmt = conexion.createStatement();

@@ -187,7 +187,6 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		}
 		if (!encontro) {
 			logger.info("No se encontró prestamo vigente para el cliente {} en la BD", nroCliente);
-			throw new Exception("No se encontro prestamo vigente para el cliente " + nroCliente + " en la BD");
 		}
 		
 		return encontro ? nroPrestamo : null;
