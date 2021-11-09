@@ -52,7 +52,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	}
 
 	@Override
-	public boolean autenticarUsuarioAplicacion(String tarjeta, String pin)	{//AGREGARLE QUE TIRE EXCEPCION SE FALLA ALGO EN SQL
+	public boolean autenticarUsuarioAplicacion(String tarjeta, String pin) throws Exception {
 		logger.info("Se intenta autenticar la tarjeta {} con pin {}", tarjeta, pin);
 		ResultSet rs= this.consulta("select nro_tarjeta, PIN from Tarjeta");
 		boolean encontroTarjeta = false;
@@ -119,7 +119,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	{
 		logger.info("Se intenta obtener el saldo de la caja de ahorro asociada a la tarjeta ingresada");
 
-		if (this.tarjeta == null ) {
+		if (this.tarjeta == null) {
 			throw new Exception("El cliente no ingresó la tarjeta");
 		}
 		boolean encontroTarjeta = false;
@@ -135,14 +135,11 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 			}
 		}
 		catch (SQLException ex) {
-			   logger.error("SQLException: " + ex.getMessage());
-			   logger.error("SQLState: " + ex.getSQLState());
-			   logger.error("VendorError: " + ex.getErrorCode());		   
+			logger.error("SQLException: " + ex.getMessage());
+			logger.error("SQLState: " + ex.getSQLState());
+			logger.error("VendorError: " + ex.getErrorCode());		
+			throw new Exception("Falló la operación obtener saldo.");
 		}
-		/** 
-		 * TODO Obtiene el saldo.
-		 *      Debe capturar la excepción SQLException y propagar una Exception más amigable.
-		 */
 		return saldo;
 	}	
 
@@ -162,57 +159,21 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 			i++;
 			this.insertarTransaccionCajaAhorroBeanEnLista(lista, rs);
 		}
-		/**
-		 * TODO Deberá recuperar los ultimos movimientos del cliente, la cantidad está definida en el parámetro.
-		 * 		Debe capturar la excepción SQLException y propagar una Exception más amigable. 
-		 */
-		
-		/*
-		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.
-		 * 
-		+------------+----------+---------------+---------+----------+---------+
-		| fecha      | hora     | tipo          | monto   | cod_caja | destino |
-		+------------+----------+---------------+---------+----------+---------+
-		| 2021-09-16 | 11:10:00 | transferencia | -700.00 |       18 |      32 |
-		| 2021-09-15 | 17:20:00 | extraccion    | -200.00 |        2 |    NULL |
-		| 2021-09-14 | 09:03:00 | deposito      | 1600.00 |        2 |    NULL |
-		| 2021-09-13 | 13:30:00 | debito        |  -50.00 |     NULL |    NULL |
-		| 2021-09-12 | 15:00:00 | transferencia | -400.00 |       41 |       7 |
-		+------------+----------+---------------+---------+----------+---------+
- 		 */
 		return lista;
-		
-		// Fin datos estáticos de prueba.
 	}	
 	
 	@Override
-	public ArrayList<TransaccionCajaAhorroBean> cargarMovimientosPorPeriodo(Date desde, Date hasta)
-			throws Exception {
+	public ArrayList<TransaccionCajaAhorroBean> cargarMovimientosPorPeriodo(Date desde, Date hasta) throws Exception {
+		if (hasta.before(desde)) {
+			logger.error("La fecha hasta es menor a la fecha desde");
+			throw new Exception("Las fechas ingresadas son incorrectas.");
+		}
 		logger.info("Busca las transacciones en la BD de la tarjeta {} donde su fecha se encuentre entre {} y {}.", Integer.valueOf(this.tarjeta.trim()),desde,hasta);
 		ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta+" AND fecha >= '"+Fechas.convertirDateAStringDB(desde)+"' and fecha <= '"+Fechas.convertirDateAStringDB(hasta)+"'");
 		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
 		while (rs.next()) {	
 			this.insertarTransaccionCajaAhorroBeanEnLista(lista, rs);
 		}
-		/**
-		 * TODO Deberá recuperar los ultimos del cliente que se han realizado entre las fechas indicadas.
-		 * 		Debe capturar la excepción SQLException y propagar una Exception más amigable. 
-		 * 		Debe generar excepción sin las fechas son erroneas (ver descripción en interface)
-		 */
-		
-		/*
-		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.
-		 * 
-		+------------+----------+---------------+---------+----------+---------+
-		| fecha      | hora     | tipo          | monto   | cod_caja | destino |
-		+------------+----------+---------------+---------+----------+---------+
-		| 2021-09-16 | 11:10:00 | transferencia | -700.00 |       18 |      32 |
-		| 2021-09-15 | 17:20:00 | extraccion    | -200.00 |        2 |    NULL |
-		| 2021-09-14 | 09:03:00 | deposito      | 1600.00 |        2 |    NULL |
-		| 2021-09-13 | 13:30:00 | debito        |  -50.00 |     NULL |    NULL |
-		| 2021-09-12 | 15:00:00 | transferencia | -400.00 |       41 |       7 |
-		+------------+----------+---------------+---------+----------+---------+
- 		 */
 		logger.debug("Retorna una lista con {} elementos", lista.size());
 		return lista;
 	}
@@ -234,28 +195,37 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		catch (SQLException ex) {
 		   logger.error("SQLException: " + ex.getMessage());
 		   logger.error("SQLState: " + ex.getSQLState());
-		   logger.error("VendorError: " + ex.getErrorCode());		   
+		   logger.error("VendorError: " + ex.getErrorCode());		
+		   throw new Exception("Falló la operación cargar movimientos.");
 		}
 	}
 	
 	@Override
 	public Double extraer(Double monto) throws Exception {
-		logger.info("Realiza la extraccion de ${} sobre la cuenta", monto);
-		//ResultSet rs= this.consulta("CALL extraer("+monto+","+this.tarjeta+");");
-		ResultSet rs = this.consulta("CALL extraer("+monto+","+this.tarjeta+","+this.codigoATM+");");
-		/**
-		 * TODO Deberá extraer de la cuenta del cliente el monto especificado (ya validado) y de obtener el saldo de la cuenta como resultado.
-		 * 		Debe capturar la excepción SQLException y propagar una Exception más amigable. 
-		 * 		Debe generar excepción si las propiedades codigoATM o tarjeta no tienen valores
-		 */		
-		rs.next();
-		String resultado = rs.getString("resultado");
-		
-		if (!resultado.equals(ModeloATM.EXTRACCION_EXITOSA)) {
-			logger.info("La extracción no fue exitosa.");
-			throw new Exception(resultado);
+		if (this.tarjeta == null) {
+			throw new Exception("El usuario no ingresó la tarjeta.");
 		}
-		logger.info("La extracción fue exitosa.");
+		if (this.codigoATM == null) {
+			throw new Exception("El cajero no tiene código.");
+		}
+		logger.info("Realiza la extraccion de ${} sobre la cuenta", monto);
+		try {
+			ResultSet rs = this.consulta("CALL extraer("+monto+","+this.tarjeta+","+this.codigoATM+");");
+			rs.next();
+			String resultado = rs.getString("resultado");
+			
+			if (!resultado.equals(ModeloATM.EXTRACCION_EXITOSA)) {
+				logger.info("La extracción no fue exitosa.");
+				throw new Exception(resultado);
+			}
+			logger.info("La extracción fue exitosa.");
+		}
+		catch (SQLException ex) {
+		   logger.error("SQLException: " + ex.getMessage());
+		   logger.error("SQLState: " + ex.getSQLState());
+		   logger.error("VendorError: " + ex.getErrorCode());		
+		   throw new Exception("Falló la operación extraer.");
+		}
 		return this.obtenerSaldo();
 
 	}
@@ -263,39 +233,41 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	
 	@Override
 	public int parseCuenta(String p_cuenta) throws Exception {
-		
 		logger.info("Intenta realizar el parsing de un codigo de cuenta {}", p_cuenta);
-		//solo hay que controlar q p_cuenta sea un entero positivo
-		/**
-		 * TODO Verifica que el codigo de la cuenta sea valido. 
-		 * 		Debe capturar la excepción SQLException y propagar una Exception más amigable. 
-		 * 		Debe generar excepción si la cuenta es vacia, entero negativo o no puede generar el parsing.
-		 * retorna la cuenta en formato int
-		 */	
-		
-		logger.info("Encontró la cuenta en la BD.");
-        return Integer.parseInt(p_cuenta);
+		int cuenta = Integer.parseInt(p_cuenta);
+		if (cuenta < 0) {
+			throw new Exception("Código de cuenta inválido.");
+		}		
+		logger.info("El código de cuenta es válido.");
+        return cuenta;
 	}	
 	
 	@Override
 	public Double transferir(Double monto, int cajaDestino) throws Exception {
-		logger.info("Realiza la transferencia de ${} sobre a la cuenta {}", monto, cajaDestino);
-		ResultSet rs= this.consulta("CALL transferir(" + monto + "," + this.tarjeta + ", " + cajaDestino +","+this.codigoATM+");");
-		
-		/**
-		 * TODO Deberá extraer de la cuenta del cliente el monto especificado (ya validado) y de obtener el saldo de la cuenta como resultado.
-		 * 		Debe capturar la excepción SQLException y propagar una Exception más amigable. 
-		 * 		Debe generar excepción si las propiedades codigoATM o tarjeta no tienen valores
-		 */		
-		
-		rs.next();
-		String resultado = rs.getString("resultado");
-		
-		if (!resultado.equals(ModeloATM.TRANSFERENCIA_EXITOSA)) {
-			logger.info("La transacción no fue exitosa.");
-			throw new Exception(resultado);
+		if (this.tarjeta == null) {
+			throw new Exception("El usuario no ingresó la tarjeta.");
 		}
-		logger.info("La transacción fue exitosa.");
+		if (this.codigoATM == null) {
+			throw new Exception("El cajero no tiene código.");
+		}
+		try {
+			logger.info("Realiza la transferencia de ${} sobre a la cuenta {}", monto, cajaDestino);
+			ResultSet rs = this.consulta("CALL transferir(" + monto + "," + this.tarjeta + ", " + cajaDestino +","+this.codigoATM+");");
+			rs.next();
+			String resultado = rs.getString("resultado");
+			
+			if (!resultado.equals(ModeloATM.TRANSFERENCIA_EXITOSA)) {
+				logger.info("La transacción no fue exitosa.");
+				throw new Exception(resultado);
+			}
+			logger.info("La transacción fue exitosa.");
+		}
+		catch (SQLException ex) {
+		   logger.error("SQLException: " + ex.getMessage());
+		   logger.error("SQLState: " + ex.getSQLState());
+		   logger.error("VendorError: " + ex.getErrorCode());		
+		   throw new Exception("Falló la operación transferir.");
+		}
 		return this.obtenerSaldo();
 	}
 
