@@ -72,18 +72,18 @@ INSERT INTO Prestamo(fecha, cant_meses, monto, tasa_interes, interes, valor_cuot
 
 #Tasa Prestamos
 INSERT INTO Tasa_Prestamo VALUES (1, 100.00, 500.00, 10.00);
-INSERT INTO Tasa_Prestamo VALUES (1, 500.00, 1000.00, 20.00);
+INSERT INTO Tasa_Prestamo VALUES (1, 501.00, 1000.00, 20.00);
 INSERT INTO Tasa_Prestamo VALUES (3, 100.00, 500.00, 20.00);
-INSERT INTO Tasa_Prestamo VALUES (3, 500.00, 1000.00, 30.00);
+INSERT INTO Tasa_Prestamo VALUES (3, 501.00, 1000.00, 30.00);
 INSERT INTO Tasa_Prestamo VALUES (5, 100.00, 500.00, 30.00);
-INSERT INTO Tasa_Prestamo VALUES (5, 500.00, 1000.00, 40.00);
+INSERT INTO Tasa_Prestamo VALUES (5, 501.00, 1000.00, 40.00);
 INSERT INTO Tasa_Prestamo VALUES (7, 100.00, 500.00, 40.00);
-INSERT INTO Tasa_Prestamo VALUES (7, 500.00, 1000.00, 50.00);
+INSERT INTO Tasa_Prestamo VALUES (7, 501.00, 1000.00, 50.00);
 INSERT INTO Tasa_Prestamo VALUES (11, 100.00, 500.00, 50.00);
-INSERT INTO Tasa_Prestamo VALUES (11, 500.00, 1000.00, 60.00);
+INSERT INTO Tasa_Prestamo VALUES (11, 501.00, 1000.00, 60.00);
 INSERT INTO Tasa_Prestamo VALUES (12, 100.00, 500.00, 60.00);
-INSERT INTO Tasa_Prestamo VALUES (12, 500.00, 1000.00, 70.00);
-INSERT INTO Tasa_Prestamo VALUES (12, 1000.00, 2000.00, 80.00);
+INSERT INTO Tasa_Prestamo VALUES (12, 501.00, 1000.00, 70.00);
+INSERT INTO Tasa_Prestamo VALUES (12, 1001.00, 2000.00, 80.00);
 
 
 #Pagos
@@ -132,7 +132,7 @@ INSERT INTO Transaccion(fecha, hora, monto) VALUES (str_to_date('01/02/2021', '%
 INSERT INTO Transaccion(fecha, hora, monto) VALUES (str_to_date('21/09/2020', '%d/%m/%Y'), '16:00', 20000.00);
 INSERT INTO Transaccion(fecha, hora, monto) VALUES (str_to_date('30/09/2020', '%d/%m/%Y'), '20:12', 25000.00);
 INSERT INTO Transaccion(fecha, hora, monto) VALUES (str_to_date('15/03/2021', '%d/%m/%Y'), '18:40', 5000.00);
-INSERT INTO Transaccion(fecha, hora, monto) VALUES (str_to_date('21/11/2021', '%d/%m/%Y'), '23:25', 100000.00);
+INSERT INTO Transaccion(fecha, hora, monto) VALUES (str_to_date('21/01/2021', '%d/%m/%Y'), '23:25', 100000.00);
 INSERT INTO Transaccion(fecha, hora, monto) VALUES (str_to_date('01/09/2021', '%d/%m/%Y'), '25:59', 500.00);
 
 #Cajas
