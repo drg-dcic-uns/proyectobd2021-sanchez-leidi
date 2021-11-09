@@ -16,10 +16,10 @@ public final class Parsing {
 			DecimalFormat df = new DecimalFormat("#.00");
 
 			monto = Double.parseDouble(corregirComa(df.format(monto)));
-			/*if(monto < 0)
+			if(monto < 0)
 			{
 				throw new Exception("El monto no debe ser negativo.");
-			}*/
+			}
 			
 			return monto;
 		}		
