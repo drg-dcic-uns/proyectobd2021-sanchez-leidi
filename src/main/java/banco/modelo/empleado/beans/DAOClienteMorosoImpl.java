@@ -1,7 +1,6 @@
 package banco.modelo.empleado.beans;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -42,24 +41,31 @@ public class DAOClienteMorosoImpl implements DAOClienteMoroso {
 		PrestamoBean prestamo = null;
 		ClienteBean cliente = null;
 		
-		Statement stmt = conexion.createStatement();
-		String consulta = "SELECT * FROM (SELECT nro_prestamo, COUNT(nro_prestamo) cuotas_atrasadas FROM "
-				+ " pago WHERE fecha_venc < CURDATE() AND fecha_pago is NULL GROUP BY nro_prestamo) pp WHERE cuotas_atrasadas >= 2";
-		ResultSet rs = stmt.executeQuery(consulta);
-		ClienteMorosoBean morosoEncontrado;
 		
-		while(rs.next()) {
-			morosoEncontrado = new ClienteMorosoBeanImpl();
-			prestamo = daoPrestamo.recuperarPrestamo(rs.getInt("nro_prestamo"));
-			cliente = daoCliente.recuperarCliente(prestamo.getNroCliente());
-			morosoEncontrado.setCliente(cliente);
-			morosoEncontrado.setPrestamo(prestamo);
-			morosoEncontrado.setCantidadCuotasAtrasadas(rs.getInt("cuotas_atrasadas"));
-			morosos.add(morosoEncontrado);
+		
+		try {
+			Statement stmt = conexion.createStatement();
+			String consulta = "SELECT * FROM (SELECT nro_prestamo, COUNT(nro_prestamo) cuotas_atrasadas FROM "
+					+ " pago WHERE fecha_venc < CURDATE() AND fecha_pago is NULL GROUP BY nro_prestamo) pp WHERE cuotas_atrasadas >= 2";
+			ResultSet rs = stmt.executeQuery(consulta);
+			ClienteMorosoBean morosoEncontrado;
+			while(rs.next()) {
+				morosoEncontrado = new ClienteMorosoBeanImpl();
+				prestamo = daoPrestamo.recuperarPrestamo(rs.getInt("nro_prestamo"));
+				cliente = daoCliente.recuperarCliente(prestamo.getNroCliente());
+				morosoEncontrado.setCliente(cliente);
+				morosoEncontrado.setPrestamo(prestamo);
+				morosoEncontrado.setCantidadCuotasAtrasadas(rs.getInt("cuotas_atrasadas"));
+				morosos.add(morosoEncontrado);
+			}
+		}
+		catch(SQLException ex) {
+			logger.error("SQLException: " + ex.getMessage());
+			logger.error("SQLState: " + ex.getSQLState());
+			logger.error("VendorError: " + ex.getErrorCode());	
 		}
 		
 		return morosos;		
-		// Fin datos estáticos de prueba.
 		
 	}
 

@@ -11,9 +11,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import banco.utils.Fechas;
-
-
 public class DAOPagoImpl implements DAOPago {
 
 	private static Logger logger = LoggerFactory.getLogger(DAOPagoImpl.class);
@@ -28,19 +25,9 @@ public class DAOPagoImpl implements DAOPago {
 	public ArrayList<PagoBean> recuperarPagos(int nroPrestamo) throws Exception {
 		logger.info("Inicia la recuperacion de los pagos del prestamo {}", nroPrestamo);
 		
-		/** COMPLETED? Falta probar
-		 * TODO Recupera todos los pagos del prestamo (pagos e impagos) del prestamo nroPrestamo
-		 * 	    Si ocurre algún error deberá propagar una excepción.
-		 */
-		
-		/*
-		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  : 
-		 * Retorna los pagos de un prestamo nro 4
-		 */
 		ArrayList<PagoBean> lista = new ArrayList<PagoBean>();
 		
-		try
-		{
+		try {
 			String consulta = "SELECT * FROM Pago WHERE nro_prestamo = " + nroPrestamo + " ;";
 			Statement stmt = conexion.createStatement();			
 			ResultSet rs = stmt.executeQuery(consulta);
@@ -55,35 +42,24 @@ public class DAOPagoImpl implements DAOPago {
 			}
 			if (lista.isEmpty()) {
 				logger.info("No hay pagos del prestamo nro {} en la BD", nroPrestamo);
+				throw new Exception("No hay pagos del prestamo nro " + nroPrestamo + " en la BD.");
 			}
 		}
-		catch (SQLException ex){
-		   logger.error("SQLException: " + ex.getMessage());
-		   logger.error("SQLState: " + ex.getSQLState());
-		   logger.error("VendorError: " + ex.getErrorCode());
+		catch(SQLException ex) {
+			logger.error("SQLException: " + ex.getMessage());
+			logger.error("SQLState: " + ex.getSQLState());
+			logger.error("VendorError: " + ex.getErrorCode());
 		}
 		
-		
 		return lista;
-		// Fin datos estáticos de prueba.
 	}
 
 	@Override
 	public void registrarPagos(int nroCliente, int nroPrestamo, List<Integer> cuotasAPagar)  throws Exception {
 
 		logger.info("Inicia el pago de las {} cuotas del prestamo {}", cuotasAPagar.size(), nroPrestamo);
-
-		/**	COMPLETED? Probarlo
-		 * TODO Registra los pagos de cuotas definidos en cuotasAPagar.
-		 * 
-		 * nroCliente asume que esta validado
-		 * nroPrestamo asume que está validado
-		 * cuotasAPagar Debe verificar que las cuotas a pagar no estén pagas (fecha_pago = NULL)
-		 * @throws Exception Si hubo error en la conexión
-		 */		
 		
-		try
-		{
+		try {
 			Statement stmt = conexion.createStatement();
 			String consulta = "SELECT * FROM Pago WHERE nro_prestamo = " + nroPrestamo + ";";
 			ResultSet rs = stmt.executeQuery(consulta);
@@ -102,10 +78,6 @@ public class DAOPagoImpl implements DAOPago {
 				}
 			}
 			if(i == cuotasAPagar.size()) {
-				consulta = "SELECT CURDATE()";
-				rs = stmt.executeQuery(consulta);
-				rs.next();
-				String fecha = Fechas.convertirStringSQL(rs.getString("CURDATE()"));
 				for(Integer aux : cuotasAPagar) {
 					consulta = "UPDATE Pago SET fecha_pago = CURDATE() WHERE nro_prestamo = " + nroPrestamo +
 							" AND nro_pago = " + aux + ";";
@@ -113,12 +85,11 @@ public class DAOPagoImpl implements DAOPago {
 					ps.executeUpdate();
 				}
 			}
-			
 		}
-		catch (SQLException ex){
-		   logger.error("SQLException: " + ex.getMessage());
-		   logger.error("SQLState: " + ex.getSQLState());
-		   logger.error("VendorError: " + ex.getErrorCode());
+		catch(SQLException ex) {
+			logger.error("SQLException: " + ex.getMessage());
+			logger.error("SQLState: " + ex.getSQLState());
+			logger.error("VendorError: " + ex.getErrorCode());
 		}
 	}
 }

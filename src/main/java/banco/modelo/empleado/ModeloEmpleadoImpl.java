@@ -3,9 +3,7 @@ package banco.modelo.empleado;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,44 +45,25 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		ResultSet rs= this.consulta("select legajo, password from Empleado");
 		boolean encontroTarjeta = false;
 		boolean autentica = false;
-		try {
-			while (rs.next() && !encontroTarjeta) {	
-				if (rs.getString("legajo").equals(legajo)) {
-					encontroTarjeta = true;
-					this.legajo = Integer.valueOf(legajo);
-					logger.info("El legajo {} existe en la BD", legajo);
-					if (rs.getString("password").equals(this.md5OfString(password))) {
-						logger.info("La contraseña {} corresponde con la contraseña asociada al empleado en la BD {}", password,legajo);
-						autentica = true;
-					}
-					else {
-						logger.info("La contraseña {} no corresponde con la contraseña asociada al empleado en la BD {}", password,legajo);
-					}
-				}		
-			}
-			if (!encontroTarjeta) {
-				logger.info("El legajo {} no existe en la BD", legajo);
-			}
+		while (rs.next() && !encontroTarjeta) {	
+			if (rs.getString("legajo").equals(legajo)) {
+				encontroTarjeta = true;
+				this.legajo = Integer.valueOf(legajo);
+				logger.info("El legajo {} existe en la BD", legajo);
+				if (rs.getString("password").equals(this.md5OfString(password))) {
+					logger.info("La contraseña {} corresponde con la contraseña asociada al empleado en la BD {}", password,legajo);
+					autentica = true;
+				}
+				else {
+					logger.info("La contraseña {} no corresponde con la contraseña asociada al empleado en la BD {}", password,legajo);
+				}
+			}		
 		}
-		catch (SQLException ex) {
-			   logger.error("SQLException: " + ex.getMessage());
-			   logger.error("SQLState: " + ex.getSQLState());
-			   logger.error("VendorError: " + ex.getErrorCode());		   
+		if (!encontroTarjeta) {
+			logger.info("El legajo {} no existe en la BD", legajo);
+			throw new Exception("El legajo " + legajo + " no existe en la BD.");
 		}
 		return autentica;
-
-		/** COMPLETED
-		 * TODO Código que autentica que exista un legajo de empleado y que el password corresponda a ese legajo
-		 *      (el password guardado en la BD está en MD5) 
-		 *      En caso exitoso deberá registrar el legajo en la propiedad legajo y retornar true.
-		 *      Si la autenticación no es exitosa porque el legajo no es válido o el password es incorrecto
-		 *      deberá retornar falso y si hubo algún otro error deberá producir una excepción.
-		 */
-		
-		/*
-		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
-		 */
-		// Fin datos estáticos de prueba.
 	}
 	
 	private String md5OfString(String input) {
@@ -120,26 +99,11 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		logger.info("recupera los tipos de documentos.");
 		ArrayList<String> tipos = new ArrayList<String>();
 		ResultSet rs= this.consulta("SELECT DISTINCT tipo_doc FROM Empleado;");
-		try {
-			while (rs.next()) {	
-				tipos.add(rs.getString("tipo_doc"));
-			}
+		while (rs.next()) {	
+			tipos.add(rs.getString("tipo_doc"));
 		}
-		catch (SQLException ex) {
-			   logger.error("SQLException: " + ex.getMessage());
-			   logger.error("SQLState: " + ex.getSQLState());
-			   logger.error("VendorError: " + ex.getErrorCode());		   
-		}
-		/** COMPLETED
-		 * TODO Debe retornar una lista de strings con los tipos de documentos. 
-		 *      Deberia propagar una excepción si hay algún error en la consulta.
-		 */
-		
-		/*
-		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
-		 */
+			
 		return tipos;
-		// Fin datos estáticos de prueba.
 	}	
 
 	@Override
@@ -150,35 +114,19 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		boolean encontroTasa = false;
 		double tasa = 0;
 
-		try {
-			while (rs.next() && !encontroTasa) {	
-				if (rs.getInt("periodo") == cantidadMeses && rs.getInt("monto_inf") <= monto && rs.getInt("monto_sup") >= monto) {
-					encontroTasa = true;
-					tasa = rs.getInt("tasa");
-					logger.info("Se encontró la tasa {} para el monto {}, con meses {} en la BD", rs.getInt("tasa"), monto, cantidadMeses);
-				}		
-			}
-			if (!encontroTasa) {
-				logger.info("No se encontró la tasa para el monto {}, con meses {} en la BD", monto, cantidadMeses);
-			}
+		while (rs.next() && !encontroTasa) {	
+			if (rs.getInt("periodo") == cantidadMeses && rs.getInt("monto_inf") <= monto && rs.getInt("monto_sup") >= monto) {
+				encontroTasa = true;
+				tasa = rs.getInt("tasa");
+				logger.info("Se encontró la tasa {} para el monto {}, con meses {} en la BD", rs.getInt("tasa"), monto, cantidadMeses);
+			}		
 		}
-		catch (SQLException ex) {
-			   logger.error("SQLException: " + ex.getMessage());
-			   logger.error("SQLState: " + ex.getSQLState());
-			   logger.error("VendorError: " + ex.getErrorCode());		   
+		if (!encontroTasa) {
+			logger.info("No se encontró la tasa para el monto {}, con meses {} en la BD", monto, cantidadMeses);
+			throw new Exception("No se encontró la tasa para el monto " + monto + ", con meses " + cantidadMeses + " en la BD");
 		}
-		
-		/** 
-		 * TODO Debe buscar la tasa correspondiente según el monto y la cantidadMeses. 
-		 *      Deberia propagar una excepción si hay algún error de conexión o 
-		 *      no encuentra el monto dentro del [monto_inf,monto_sup] y la cantidadMeses.
-		 */
-		
-		/*
-		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
-		 */
+			
    		return tasa;
-     	// Fin datos estáticos de prueba.
 	}
 
 	@Override
@@ -203,82 +151,46 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 	@Override
 	public ArrayList<Integer> obtenerCantidadMeses(double monto) throws Exception {
 		logger.info("recupera los períodos (cantidad de meses) según el monto {} para el prestamo.", monto);
-
-		/** 
-		 * TODO Debe buscar los períodos disponibles según el monto. 
-		 *      Deberia propagar una excepción si hay algún error de conexión o 
-		 *      no encuentra el monto dentro del [monto_inf,monto_sup].
-		 */
-		
-		/*
-		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
-		 */		
 		ArrayList<Integer> cantMeses = new ArrayList<Integer>();
 		
 		ResultSet rs= this.consulta("SELECT periodo, monto_inf, monto_sup FROM Tasa_Prestamo;");
 
-		try {
-			while (rs.next()) {	
-				if (rs.getInt("monto_inf") <= monto && rs.getInt("monto_sup") >= monto) {
-					cantMeses.add(rs.getInt("periodo"));
-					logger.info("Se encontró el mes {} para el monto {} en la BD", rs.getInt("periodo"), monto);
-				}		
-			}
-			if (cantMeses.isEmpty()) {
-				logger.info("No se encontraron meses para el monto {} en la BD", monto);
-			}
+		while (rs.next()) {	
+			if (rs.getInt("monto_inf") <= monto && rs.getInt("monto_sup") >= monto) {
+				cantMeses.add(rs.getInt("periodo"));
+				logger.info("Se encontró el mes {} para el monto {} en la BD", rs.getInt("periodo"), monto);
+			}		
 		}
-		catch (SQLException ex) {
-			   logger.error("SQLException: " + ex.getMessage());
-			   logger.error("SQLState: " + ex.getSQLState());
-			   logger.error("VendorError: " + ex.getErrorCode());		   
+		if (cantMeses.isEmpty()) {
+			logger.info("No se encontraron meses para el monto {} en la BD", monto);
+			throw new Exception("No se encontraron meses para el monto " + monto + " en la BD");
 		}
 		
 		return cantMeses;
-		// Fin datos estáticos de prueba.
 	}
 
 	@Override	
 	public Integer prestamoVigente(int nroCliente) throws Exception 
 	{
 		logger.info("Verifica si el cliente {} tiene algun prestamo que tienen cuotas por pagar.", nroCliente);
-
-		/** 
-		 * TODO Busca algún prestamo del cliente que tenga cuotas sin pagar (vigente) retornando el nro_prestamo
-		 *      si no existe prestamo del cliente o todos están pagos retorna null.
-		 *      Si hay una excepción la propaga con un mensaje apropiado.
-		 */
-		
-		/*
-		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
-		 */
 		
 		ResultSet rs= this.consulta("SELECT nro_prestamo, nro_cliente FROM Prestamo;");
 		Integer nroPrestamo = -1;
 		boolean encontro = false;
-		
 
-		try {
-			while (rs.next() && !encontro) {	
-				if (rs.getInt("nro_cliente") == nroCliente) {
-					nroPrestamo = rs.getInt("nro_prestamo");
-					encontro = true;
-					logger.info("Se encontró el prestamo vigente {} para el cliente {} en la BD", nroPrestamo, nroCliente);
-				}
-			}
-			if (!encontro) {
-				logger.info("No se encontró prestamo vigente para el cliente {} en la BD", nroCliente);
+		while (rs.next() && !encontro) {	
+			if (rs.getInt("nro_cliente") == nroCliente) {
+				nroPrestamo = rs.getInt("nro_prestamo");
+				encontro = true;
+				logger.info("Se encontró el prestamo vigente {} para el cliente {} en la BD", nroPrestamo, nroCliente);
 			}
 		}
-		catch (SQLException ex) {
-			   logger.error("SQLException: " + ex.getMessage());
-			   logger.error("SQLState: " + ex.getSQLState());
-			   logger.error("VendorError: " + ex.getErrorCode());		   
+		if (!encontro) {
+			logger.info("No se encontró prestamo vigente para el cliente {} en la BD", nroCliente);
+			throw new Exception("No se encontro prestamo vigente para el cliente " + nroCliente + " en la BD");
 		}
-		
 		
 		return encontro ? nroPrestamo : null;
-		// Fin datos estáticos de prueba.
 	}
 
 

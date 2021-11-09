@@ -70,19 +70,6 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 		   logger.error("SQLState: " + ex.getSQLState());
 		   logger.error("VendorError: " + ex.getErrorCode());
 		}
-		
-		
-		
-		/** COMPLETED
-		 * TODO Crear o actualizar el Prestamo segun el PrestamoBean prestamo. 
-		 *      Si prestamo tiene nroPrestamo es una actualizacion, si el nroPrestamo es null entonces es un nuevo prestamo.
-		 * 
-		 * @throws Exception deberá propagar la excepción si ocurre alguna. Puede capturarla para loguear los errores, ej.
-		 *				logger.error("SQLException: " + ex.getMessage());
-		 * 				logger.error("SQLState: " + ex.getSQLState());
-		 *				logger.error("VendorError: " + ex.getErrorCode());
-		 *		   pero luego deberá propagarla para que se encargue el controlador. 
-		 */
 
 	}
 
@@ -90,19 +77,6 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 	public PrestamoBean recuperarPrestamo(int nroPrestamo) throws Exception {
 		
 		logger.info("Recupera el prestamo nro {}.", nroPrestamo);
-		
-		/** COMPLETED? No sé donde probarlo
-		 * TODO Obtiene el prestamo según el id nroPrestamo
-		 * 
-		 * @param nroPrestamo
-		 * @return Un prestamo que corresponde a ese id o null
-		 * @throws Exception si hubo algun problema de conexión
-		 */		
-
-		/*
-		 * Datos estáticos de prueba. Quitar y reemplazar por código que recupera los datos reales.  
-		 * Retorna un PretamoBean con información del prestamo nro 4
-		 */
 		PrestamoBean prestamo = null;
 			
 		try
@@ -126,7 +100,7 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 			}
 			else {							
 				logger.info("No se encontró el préstamo con nro {} en la BD.", nroPrestamo);				
-				
+				throw new Exception("No se encontro el prestamo con nro " + nroPrestamo + " en la BD.");
 			}
 		}
 		catch (SQLException ex){
@@ -135,21 +109,7 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 		   logger.error("VendorError: " + ex.getErrorCode());
 		}
 		
-		/*
-		prestamo = new PrestamoBeanImpl();
-		prestamo.setNroPrestamo(4);
-		prestamo.setFecha(Fechas.convertirStringADate("2021-04-05"));
-		prestamo.setCantidadMeses(6);
-		prestamo.setMonto(20000);
-		prestamo.setTasaInteres(24);
-		prestamo.setInteres(2400);
-		prestamo.setValorCuota(3733.33);
-		prestamo.setLegajo(2);
-		prestamo.setNroCliente(2);
-   		*/
-		
 		return prestamo;
-		// Fin datos estáticos de prueba.
 	}
 
 }
