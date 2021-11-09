@@ -122,7 +122,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 			while (rs.next() && !encontroTarjeta) {	
 				if (rs.getString("nro_tarjeta").equals(tarjeta)) {
 					encontroTarjeta = true;
-					saldo = Parsing.parseMonto(rs.getString("saldo"));
+					saldo = rs.getDouble("saldo");
 					logger.info("El saldo de la caja de ahorro asociada a la tarjeta {} es {}",this.tarjeta,saldo);
 				}		
 			}
@@ -172,7 +172,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 			throw new Exception("Las fechas ingresadas son incorrectas.");
 		}
 		logger.info("Busca las transacciones en la BD de la tarjeta {} donde su fecha se encuentre entre {} y {}.", Integer.valueOf(this.tarjeta.trim()),desde,hasta);
-		ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta+" AND fecha >= '"+Fechas.convertirDateAStringDB(desde)+"' and fecha <= '"+Fechas.convertirDateAStringDB(hasta)+"'");
+		ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta+" and tarjeta.nro_ca = trans_cajas_ahorro.nro_ca AND fecha >= '"+Fechas.convertirDateAStringDB(desde)+"' and fecha <= '"+Fechas.convertirDateAStringDB(hasta)+"'");
 		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
 		while (rs.next()) {	
 			this.insertarTransaccionCajaAhorroBeanEnLista(lista, rs);

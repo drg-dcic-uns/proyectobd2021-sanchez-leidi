@@ -456,7 +456,7 @@ CREATE PROCEDURE transferir(IN monto DECIMAL(16,2), IN tarjeta BIGINT(16), IN ca
 							INSERT INTO Deposito VALUES (LAST_INSERT_ID(), caja_destino); #Inserto un deposito a la caja destino
 							SELECT 'Transferencia Exitosa' AS resultado;
 						ELSE
-							SELECT 'Saldo insuficiente para realizar la transacción.' AS resultado;
+							SELECT 'Saldo insuficiente para realizar la transaccion.' AS resultado;
 						END IF;
 					ELSE
 						SELECT 'Caja destino es la misma que origen.' AS resultado;
@@ -492,4 +492,3 @@ delimiter ;
 # el usuario 'atm' puede ejecutar el stored procedure extraer
     GRANT execute ON procedure banco.extraer TO 'atm'@'%';
 	GRANT EXECUTE ON PROCEDURE banco.transferir TO 'atm'@'%';
-   
