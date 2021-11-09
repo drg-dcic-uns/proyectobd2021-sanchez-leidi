@@ -81,6 +81,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 			logger.error("SQLException: " + ex.getMessage());
 			logger.error("SQLState: " + ex.getSQLState());
 			logger.error("VendorError: " + ex.getErrorCode());
+			   throw new Exception("Falló la operación de autenticar usuario.");
 		}
 		return autentica;
 	}
@@ -106,13 +107,17 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	public Double obtenerSaldo() throws Exception
 	{
 		logger.info("Se intenta obtener el saldo de la caja de ahorro asociada a la tarjeta ingresada");
+
+		if (this.tarjeta == null) {
+			throw new Exception("El cliente no ingresó la tarjeta");
+		}
+		boolean encontroTarjeta = false;
 		Double saldo = 0.0;
 
 		try {
 			if (this.tarjeta == null ) {
 				throw new Exception("El cliente no ingresó la tarjeta");
 			}
-			boolean encontroTarjeta = false;
 			ResultSet rs= this.consulta("select saldo, nro_tarjeta from Tarjeta natural join trans_cajas_ahorro;");
 			while (rs.next() && !encontroTarjeta) {	
 				if (rs.getString("nro_tarjeta").equals(tarjeta)) {
@@ -121,11 +126,14 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 					logger.info("El saldo de la caja de ahorro asociada a la tarjeta {} es {}",this.tarjeta,saldo);
 				}		
 			}
+			if(!encontroTarjeta)
+				throw new Exception("No se encontro la tarjeta en la BD.");
 		}
 		catch(SQLException ex) {
 			logger.error("SQLException: " + ex.getMessage());
 			logger.error("SQLState: " + ex.getSQLState());
 			logger.error("VendorError: " + ex.getErrorCode());
+			   throw new Exception("Falló la operación de obtener saldo.");
 		}
 		return saldo;
 	}	
@@ -152,21 +160,23 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 			logger.error("SQLException: " + ex.getMessage());
 			logger.error("SQLState: " + ex.getSQLState());
 			logger.error("VendorError: " + ex.getErrorCode());
+			   throw new Exception("Falló la operación de cargar ultimos movimientos.");
 		}
-		//FIJARSE THROWS
 		return lista;
 	}	
 	
 	@Override
-	public ArrayList<TransaccionCajaAhorroBean> cargarMovimientosPorPeriodo(Date desde, Date hasta)
-			throws Exception {
+	public ArrayList<TransaccionCajaAhorroBean> cargarMovimientosPorPeriodo(Date desde, Date hasta) throws Exception {
+		if (hasta.before(desde)) {
+			logger.error("La fecha hasta es menor a la fecha desde");
+			throw new Exception("Las fechas ingresadas son incorrectas.");
+		}
 		logger.info("Busca las transacciones en la BD de la tarjeta {} donde su fecha se encuentre entre {} y {}.", Integer.valueOf(this.tarjeta.trim()),desde,hasta);
 		ResultSet rs= this.consulta("select fecha, hora, tipo, IF(tipo='extraccion' OR tipo='transferencia' OR tipo='debito',monto * -1,monto) AS monto, cod_caja, destino from Tarjeta NATURAL JOIN trans_cajas_ahorro where nro_tarjeta="+this.tarjeta+" AND fecha >= '"+Fechas.convertirDateAStringDB(desde)+"' and fecha <= '"+Fechas.convertirDateAStringDB(hasta)+"'");
 		ArrayList<TransaccionCajaAhorroBean> lista = new ArrayList<TransaccionCajaAhorroBean>();
 		while (rs.next()) {	
 			this.insertarTransaccionCajaAhorroBeanEnLista(lista, rs);
 		}
-		
 		logger.debug("Retorna una lista con {} elementos", lista.size());
 		return lista;
 	}
@@ -188,6 +198,12 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	
 	@Override
 	public Double extraer(Double monto) throws Exception {
+		if (this.tarjeta == null) {
+			throw new Exception("El usuario no ingresó la tarjeta.");
+		}
+		if (this.codigoATM == null) {
+			throw new Exception("El cajero no tiene código.");
+		}
 		logger.info("Realiza la extraccion de ${} sobre la cuenta", monto);
 		try {
 			ResultSet rs = this.consulta("CALL extraer(" + monto + ", " + this.tarjeta + ", " + this.codigoATM + ");");
@@ -200,10 +216,11 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 			}
 			logger.info("La extracción fue exitosa.");
 		}
-		catch(SQLException ex) {
-			logger.error("SQLException: " + ex.getMessage());
-			logger.error("SQLState: " + ex.getSQLState());
-			logger.error("VendorError: " + ex.getErrorCode());
+		catch (SQLException ex) {
+		   logger.error("SQLException: " + ex.getMessage());
+		   logger.error("SQLState: " + ex.getSQLState());
+		   logger.error("VendorError: " + ex.getErrorCode());		
+		   throw new Exception("Falló la operación extraer.");
 		}
 		return this.obtenerSaldo();
 
@@ -212,7 +229,6 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	
 	@Override
 	public int parseCuenta(String p_cuenta) throws Exception {
-		
 		logger.info("Intenta realizar el parsing de un codigo de cuenta {}", p_cuenta);
 		
 		if(p_cuenta == null) {
@@ -237,10 +253,15 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	
 	@Override
 	public Double transferir(Double monto, int cajaDestino) throws Exception {
-		logger.info("Realiza la transferencia de ${} sobre a la cuenta {}", monto, cajaDestino);
+		if (this.tarjeta == null) {
+			throw new Exception("El usuario no ingresó la tarjeta.");
+		}
+		if (this.codigoATM == null) {
+			throw new Exception("El cajero no tiene código.");
+		}
 		try {
-			ResultSet rs= this.consulta("CALL transferir(" + monto + "," + this.tarjeta + ", " + cajaDestino + ", " + this.codigoATM + ");");	
-			
+			logger.info("Realiza la transferencia de ${} sobre a la cuenta {}", monto, cajaDestino);
+			ResultSet rs = this.consulta("CALL transferir(" + monto + "," + this.tarjeta + ", " + cajaDestino +","+this.codigoATM+");");
 			rs.next();
 			String resultado = rs.getString("resultado");
 			
@@ -248,13 +269,14 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 				logger.info("La transacción no fue exitosa.");
 				throw new Exception(resultado);
 			}
+			logger.info("La transacción fue exitosa.");
 		}
-		catch(SQLException ex) {
-			logger.error("SQLException: " + ex.getMessage());
-			logger.error("SQLState: " + ex.getSQLState());
-			logger.error("VendorError: " + ex.getErrorCode());
+		catch (SQLException ex) {
+		   logger.error("SQLException: " + ex.getMessage());
+		   logger.error("SQLState: " + ex.getSQLState());
+		   logger.error("VendorError: " + ex.getErrorCode());		
+		   throw new Exception("Falló la operación transferir.");
 		}
-		logger.info("La transacción fue exitosa.");
 		return this.obtenerSaldo();
 		
 	}

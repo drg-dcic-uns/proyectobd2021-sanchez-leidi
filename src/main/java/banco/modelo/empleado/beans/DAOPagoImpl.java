@@ -49,6 +49,7 @@ public class DAOPagoImpl implements DAOPago {
 			logger.error("SQLException: " + ex.getMessage());
 			logger.error("SQLState: " + ex.getSQLState());
 			logger.error("VendorError: " + ex.getErrorCode());
+			throw new Exception("Falló la operación de recuperar pagos.");
 		}
 		
 		return lista;
@@ -90,6 +91,7 @@ public class DAOPagoImpl implements DAOPago {
 			logger.error("SQLException: " + ex.getMessage());
 			logger.error("SQLState: " + ex.getSQLState());
 			logger.error("VendorError: " + ex.getErrorCode());
+			throw new Exception("Falló la operación registrar pagos.");
 		}
 	}
 }

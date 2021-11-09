@@ -56,6 +56,7 @@ public class DAOClienteImpl implements DAOCliente {
 			logger.error("SQLException: " + ex.getMessage());
 			logger.error("SQLState: " + ex.getSQLState());
 			logger.error("VendorError: " + ex.getErrorCode());
+			throw new Exception("Falló la operación de recuperar cliente.");
 		}
 		return cliente;		
 
@@ -95,6 +96,7 @@ public class DAOClienteImpl implements DAOCliente {
 			logger.error("SQLException: " + ex.getMessage());
 			logger.error("SQLState: " + ex.getSQLState());
 			logger.error("VendorError: " + ex.getErrorCode());
+			throw new Exception("Falló la operación de recuperar cliente.");
 		}
 		
 		return cliente;		

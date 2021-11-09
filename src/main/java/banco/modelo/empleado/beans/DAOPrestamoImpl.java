@@ -69,6 +69,7 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 		   logger.error("SQLException: " + ex.getMessage());
 		   logger.error("SQLState: " + ex.getSQLState());
 		   logger.error("VendorError: " + ex.getErrorCode());
+		   throw new Exception("Falló la operación de actualizar un prestamo.");
 		}
 
 	}
@@ -107,6 +108,7 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 		   logger.error("SQLException: " + ex.getMessage());
 		   logger.error("SQLState: " + ex.getSQLState());
 		   logger.error("VendorError: " + ex.getErrorCode());
+		   throw new Exception("Falló la operación de recuperar prestamo.");
 		}
 		
 		return prestamo;

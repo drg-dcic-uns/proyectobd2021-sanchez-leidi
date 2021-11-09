@@ -63,6 +63,7 @@ public class DAOClienteMorosoImpl implements DAOClienteMoroso {
 			logger.error("SQLException: " + ex.getMessage());
 			logger.error("SQLState: " + ex.getSQLState());
 			logger.error("VendorError: " + ex.getErrorCode());	
+			throw new Exception("Falló la operación de recuperar clientes morosos.");
 		}
 		
 		return morosos;		
