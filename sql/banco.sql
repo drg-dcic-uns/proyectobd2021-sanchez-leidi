@@ -360,6 +360,8 @@ CREATE TABLE Extraccion(
     GRANT SELECT, UPDATE ON banco.Tarjeta TO 'atm'@'%';
     # el usuario 'atm' puede realizar consultas datos sobre: trans_caja_ahorro
     GRANT SELECT ON banco.trans_cajas_ahorro TO 'atm'@'%';
+    # el usuario 'atm' puede realizar consultas datos sobre: caja_ahorro
+    GRANT SELECT ON banco.caja_ahorro TO 'atm'@'%';
 
 
 # Stored procedure

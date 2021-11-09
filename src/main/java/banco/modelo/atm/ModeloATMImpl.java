@@ -110,29 +110,21 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		if (this.tarjeta == null) {
 			throw new Exception("El cliente no ingresó la tarjeta");
 		}
-		boolean encontroTarjeta = false;
 		Double saldo = 0.0;
-
 		try {
 			if (this.tarjeta == null ) {
 				throw new Exception("El cliente no ingresó la tarjeta");
 			}
-			ResultSet rs= this.consulta("select saldo, nro_tarjeta from Tarjeta natural join trans_cajas_ahorro;");
-			while (rs.next() && !encontroTarjeta) {	
-				if (rs.getString("nro_tarjeta").equals(tarjeta)) {
-					encontroTarjeta = true;
-					saldo = rs.getDouble("saldo");
-					logger.info("El saldo de la caja de ahorro asociada a la tarjeta {} es {}",this.tarjeta,saldo);
-				}		
-			}
-			if(!encontroTarjeta)
-				throw new Exception("No se encontro la tarjeta en la BD.");
+			ResultSet rs= this.consulta("SELECT saldo FROM tarjeta NATURAL JOIN caja_ahorro WHERE nro_tarjeta = "+this.tarjeta+";");
+			rs.next();
+			saldo = rs.getDouble("saldo");
+			logger.info("El saldo de la caja de ahorro asociada a la tarjeta {} es {}",this.tarjeta,saldo);;
 		}
 		catch(SQLException ex) {
 			logger.error("SQLException: " + ex.getMessage());
 			logger.error("SQLState: " + ex.getSQLState());
 			logger.error("VendorError: " + ex.getErrorCode());
-			   throw new Exception("Falló la operación de obtener saldo.");
+			throw new Exception("Falló la operación de obtener saldo.");
 		}
 		return saldo;
 	}	
@@ -166,6 +158,10 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 	
 	@Override
 	public ArrayList<TransaccionCajaAhorroBean> cargarMovimientosPorPeriodo(Date desde, Date hasta) throws Exception {
+		if (desde == null || hasta == null) {
+			logger.error("Alguna de las fechas es null.");
+			throw new Exception("Por favor, ingrese ambas fechas.");
+		}
 		if (hasta.before(desde)) {
 			logger.error("La fecha hasta es menor a la fecha desde");
 			throw new Exception("Las fechas ingresadas son incorrectas.");
