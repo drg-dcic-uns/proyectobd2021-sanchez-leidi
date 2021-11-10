@@ -95,14 +95,13 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 	}	
 	
 	@Override
-	public ArrayList<String> obtenerTiposDocumento() throws Exception{
+	public ArrayList<String> obtenerTiposDocumento() throws Exception {
 		logger.info("recupera los tipos de documentos.");
 		ArrayList<String> tipos = new ArrayList<String>();
 		ResultSet rs= this.consulta("SELECT DISTINCT tipo_doc FROM Empleado;");
 		while (rs.next()) {	
 			tipos.add(rs.getString("tipo_doc"));
-		}
-			
+		}	
 		return tipos;
 	}	
 

@@ -56,6 +56,9 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 		boolean encontroTarjeta = false;
 		boolean autentica = false;
 		try {
+			if (tarjeta.equals("") || pin.equals("")) {
+				throw new Exception("Por favor, ingrese todos los campos.");
+			}
 			ResultSet rs= this.consulta("select nro_tarjeta, PIN from Tarjeta");
 			while (rs.next() && !encontroTarjeta) {	
 				if (rs.getString("nro_tarjeta").equals(tarjeta)) {
@@ -73,7 +76,7 @@ public class ModeloATMImpl extends ModeloImpl implements ModeloATM {
 			}
 			if (!encontroTarjeta) {
 				logger.info("La tarjeta {} no existe en la BD", tarjeta);
-				throw new Exception("La tarjeta " + tarjeta + " no existe en la BD.");
+				throw new Exception("La tarjeta " + tarjeta + " es inválida.");
 			}
 		}
 		catch(SQLException ex) {

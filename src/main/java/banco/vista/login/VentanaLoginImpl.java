@@ -430,14 +430,8 @@ public class VentanaLoginImpl extends JFrame implements VentanaLogin, ItemListen
 				else if (getUsuarioSeleccionado().equals("ATM")) 
 				{
 					logger.info("Intenta ingresar como Cliente");
-					String password = new String(getPassword());
-					if (getUserName().equals("") || password.equals("")) {//controla que los campos no estén vacíos
-						JOptionPane.showMessageDialog(panelLogin, "Debe completar todos los campos.", "Advertencia.", JOptionPane.WARNING_MESSAGE);
-					}
-					else {
-						controlador.ingresarComoCliente(getUserName(),getPassword());	
-					}
-				}
+	            	controlador.ingresarComoCliente(getUserName(),getPassword());					
+				} 
 				else  
 				{ 
 					logger.error("Intenta ingresar con un valor erroneo de usuario");

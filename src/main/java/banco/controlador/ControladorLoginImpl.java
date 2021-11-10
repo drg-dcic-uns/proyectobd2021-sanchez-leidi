@@ -138,7 +138,7 @@ public class ControladorLoginImpl implements ControladorLogin {
 					}
 				}
 				catch(Exception e) {
-				
+					this.ventana.informar(e.getMessage());
 				}
 			}
 			else
