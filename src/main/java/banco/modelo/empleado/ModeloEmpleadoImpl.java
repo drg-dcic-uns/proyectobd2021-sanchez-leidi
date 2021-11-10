@@ -61,7 +61,7 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		}
 		if (!encontroTarjeta) {
 			logger.info("El legajo {} no existe en la BD", legajo);
-			throw new Exception("El legajo " + legajo + " no existe en la BD.");
+			throw new Exception("El legajo " + legajo + " es inválido.");
 		}
 		return autentica;
 	}
@@ -163,7 +163,7 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		}
 		if (cantMeses.isEmpty()) {
 			logger.info("No se encontraron meses para el monto {} en la BD", monto);
-			throw new Exception("No se encontraron meses para el monto " + monto + " en la BD");
+			throw new Exception("El monto ingresado es inválido.");
 		}
 		
 		return cantMeses;
