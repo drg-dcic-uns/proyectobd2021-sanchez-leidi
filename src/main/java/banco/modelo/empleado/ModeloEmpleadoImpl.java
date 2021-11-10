@@ -174,18 +174,16 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 	{
 		logger.info("Verifica si el cliente {} tiene algun prestamo que tienen cuotas por pagar.", nroCliente);
 		
-		ResultSet rs= this.consulta("SELECT nro_prestamo, nro_cliente FROM Prestamo;");
+		ResultSet rs= this.consulta("SELECT Prestamo.nro_prestamo, nro_cliente FROM Prestamo INNER JOIN Pago ON Prestamo.nro_prestamo = Pago.nro_prestamo WHERE nro_cliente = " + nroCliente + " AND fecha_pago IS NULL;");
 		Integer nroPrestamo = -1;
 		boolean encontro = false;
-
-		while (rs.next() && !encontro) {	
-			if (rs.getInt("nro_cliente") == nroCliente) {
-				nroPrestamo = rs.getInt("nro_prestamo");
-				encontro = true;
-				logger.info("Se encontró el prestamo vigente {} para el cliente {} en la BD", nroPrestamo, nroCliente);
-			}
+		
+		if (rs.next()) {	
+			nroPrestamo = rs.getInt("nro_prestamo");
+			logger.info("Se encontró el prestamo vigente {} para el cliente {} en la BD", nroPrestamo, nroCliente);
+			encontro = true;
 		}
-		if (!encontro) {
+		else {
 			logger.info("No se encontró prestamo vigente para el cliente {} en la BD", nroCliente);
 		}
 		
