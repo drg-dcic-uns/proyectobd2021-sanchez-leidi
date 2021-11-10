@@ -47,7 +47,7 @@ public class DAOEmpleadoImpl implements DAOEmpleado {
 			}
 			else {							
 				logger.info("No se encontró el empleado con legajo {} en la BD.", legajo);			
-				throw new Exception("No se encontro el empleado con legajo " + legajo + " en la BD.");
+				throw new Exception("No se encontró el empleado con legajo " + legajo +".");
 			}
 		}
 		catch (SQLException ex){

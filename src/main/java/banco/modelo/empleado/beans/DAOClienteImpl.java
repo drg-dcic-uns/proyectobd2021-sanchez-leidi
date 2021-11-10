@@ -49,7 +49,7 @@ public class DAOClienteImpl implements DAOCliente {
 			}
 			if (!encontro) {
 				logger.info("El documento {} con tipo {} no existe en la BD", nroDoc, tipoDoc);
-				throw new Exception("El documento " + nroDoc + " con tipo " + tipoDoc + " no existe en la BD");
+				throw new Exception("El documento es inválido.");
 			}
 		}
 		catch(SQLException ex) {
@@ -89,7 +89,7 @@ public class DAOClienteImpl implements DAOCliente {
 			}
 			if (!encontro) {
 				logger.info("El nroCliente {} no existe en la BD", nroCliente);
-				throw new Exception("El nroCliente " + nroCliente + " no existe en la BD");
+				throw new Exception("El número de cliente es inválido.");
 			}
 		}
 		catch(SQLException ex) {

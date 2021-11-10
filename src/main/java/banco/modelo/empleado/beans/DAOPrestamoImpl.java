@@ -101,7 +101,7 @@ public class DAOPrestamoImpl implements DAOPrestamo {
 			}
 			else {							
 				logger.info("No se encontró el préstamo con nro {} en la BD.", nroPrestamo);				
-				throw new Exception("No se encontro el prestamo con nro " + nroPrestamo + " en la BD.");
+				throw new Exception("No se encontro el prestamo con nro " + nroPrestamo + ".");
 			}
 		}
 		catch (SQLException ex){

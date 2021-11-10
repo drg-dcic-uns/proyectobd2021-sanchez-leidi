@@ -42,7 +42,7 @@ public class DAOPagoImpl implements DAOPago {
 			}
 			if (lista.isEmpty()) {
 				logger.info("No hay pagos del prestamo nro {} en la BD", nroPrestamo);
-				throw new Exception("No hay pagos del prestamo nro " + nroPrestamo + " en la BD.");
+				throw new Exception("No hay pagos del prestamo nro " + nroPrestamo + ".");
 			}
 		}
 		catch(SQLException ex) {
