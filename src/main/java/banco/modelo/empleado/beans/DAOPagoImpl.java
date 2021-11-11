@@ -61,31 +61,17 @@ public class DAOPagoImpl implements DAOPago {
 		logger.info("Inicia el pago de las {} cuotas del prestamo {}", cuotasAPagar.size(), nroPrestamo);
 		
 		try {
-			Statement stmt = conexion.createStatement();
 			String consulta = "SELECT * FROM Pago WHERE nro_prestamo = " + nroPrestamo + ";";
-			ResultSet rs = stmt.executeQuery(consulta);
 			cuotasAPagar.sort(null);
-			int i = 0;
 			
 			PreparedStatement ps;
-			while(rs.next() && !(i == cuotasAPagar.size())) {					//Mientras tenga cuotas que ver
-				if(rs.getInt("nro_pago") == cuotasAPagar.get(i)) {
-					if(rs.getDate("fecha_pago") == null) {
-						i++;
-					}
-					else {
-						throw new Exception("Se seleccionó un pago ya pagado.");
-					}
-				}
+			for(Integer aux : cuotasAPagar) {
+				consulta = "UPDATE Pago SET fecha_pago = CURDATE() WHERE nro_prestamo = " + nroPrestamo +
+						" AND nro_pago = " + aux + ";";
+				ps = conexion.prepareStatement(consulta);
+				ps.executeUpdate();
 			}
-			if(i == cuotasAPagar.size()) {
-				for(Integer aux : cuotasAPagar) {
-					consulta = "UPDATE Pago SET fecha_pago = CURDATE() WHERE nro_prestamo = " + nroPrestamo +
-							" AND nro_pago = " + aux + ";";
-					ps = conexion.prepareStatement(consulta);
-					ps.executeUpdate();
-				}
-			}
+			
 		}
 		catch(SQLException ex) {
 			logger.error("SQLException: " + ex.getMessage());
