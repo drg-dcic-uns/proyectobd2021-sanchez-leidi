@@ -229,7 +229,7 @@ public class ModeloEmpleadoImpl extends ModeloImpl implements ModeloEmpleado {
 		
 		// Valida que sea un cliente que exista sino genera una excepción
 		ClienteBean c = this.recuperarCliente(p_tipo.trim(), p_dni);
-
+		
 		// Valida el prestamo
 		if (nroPrestamo != this.prestamoVigente(c.getNroCliente())) {
 			throw new Exception ("El nro del prestamo no coincide con un prestamo vigente del cliente");
