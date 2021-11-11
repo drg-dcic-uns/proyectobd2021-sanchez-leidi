@@ -22,7 +22,7 @@ public class DAOClienteImpl implements DAOCliente {
 	
 	@Override
 	public ClienteBean recuperarCliente(String tipoDoc, int nroDoc) throws Exception {
-
+		
 		logger.info("recupera el cliente con documento de tipo {} y nro {}.", tipoDoc, nroDoc);
 		
 		String consulta = "SELECT * FROM Cliente;";

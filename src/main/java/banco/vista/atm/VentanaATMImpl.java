@@ -783,7 +783,7 @@ public class VentanaATMImpl extends JFrame implements VentanaATM {
 	@Override
 	public void informarSaldo(Double saldo) {
 		String saldoActual = " $ " + String.valueOf(saldo);
-		JOptionPane.showMessageDialog(btnExtraer,"Extracción Exitosa, su saldo actual es de:" + saldoActual);
+		JOptionPane.showMessageDialog(btnExtraer,"Transacción Exitosa, su saldo actual es de:" + saldoActual);
 	}
 
 	

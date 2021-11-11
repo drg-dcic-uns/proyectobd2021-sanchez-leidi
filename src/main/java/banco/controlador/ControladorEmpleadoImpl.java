@@ -97,7 +97,7 @@ public class ControladorEmpleadoImpl implements ControladorEmpleado {
 	public void prestamoNuevoSeleccionaCliente(String p_tipo, String p_dni) {
 		logger.info("Solicita seleccionar un cliente con documento {} {} para realizar el préstamo.",p_tipo ,p_dni);
 		try {
-			
+
 			ClienteBean c = this.modelo.recuperarCliente(p_tipo.trim(), Integer.parseInt(p_dni));
 			
 			this.ventana.mostrarInformacionClientePrestamoNuevo(c);
@@ -118,7 +118,7 @@ public class ControladorEmpleadoImpl implements ControladorEmpleado {
 
 		} catch (NumberFormatException e) {
 			logger.warn("Se produjo una excepción al realizar el parsing");
-			this.ventana.informar(e.getMessage());
+			this.ventana.informar("Se produjo un error con el documento. Por favor, vuelva a ingresarlo.");
 		} catch (Exception e) {
 			logger.warn("Se produjo una excepción {}", e.getMessage());
 			this.ventana.informar(e.getMessage());
