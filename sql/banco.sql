@@ -395,7 +395,7 @@ CREATE PROCEDURE extraer(IN monto DECIMAL(16,2), IN tarjeta BIGINT(16), IN codig
      		START TRANSACTION;    # Comienza la transacción
         		SELECT nro_ca INTO caja_ahorro FROM tarjeta WHERE nro_tarjeta = tarjeta; #Guardo la caja de ahorro asociado al número de tarjeta
 			    IF EXISTS (SELECT * FROM cliente_ca NATURAL JOIN caja_ahorro WHERE nro_ca = caja_ahorro) THEN
-              		SELECT nro_cliente INTO cliente FROM cliente_ca NATURAL JOIN caja_ahorro WHERE nro_ca = caja_ahorro; #Guardo el numero de cliente asociado a la caja de ahorro
+			SELECT nro_cliente INTO cliente FROM Cliente_ca NATURAL JOIN tarjeta WHERE tarjeta.nro_tarjeta = tarjeta;#Guardo el numero de cliente asociado a la caja de ahorro
               		SELECT saldo INTO saldo_actual FROM caja_ahorro WHERE nro_ca = caja_ahorro FOR UPDATE; #Guardo el saldo actual de la caja de ahorro y bloqueo exclusivamente
                   	IF saldo_actual >= monto THEN #Si el saldo de la caja de ahorro es suficiente como para extraer monto, realizo la extracción
                      	UPDATE caja_ahorro SET saldo = saldo - monto WHERE nro_ca = caja_ahorro;#Actualizo el saldod de la caja de ahorro
@@ -449,7 +449,7 @@ CREATE PROCEDURE transferir(IN monto DECIMAL(16,2), IN tarjeta BIGINT(16), IN ca
 				IF caja_destino IN (SELECT nro_ca FROM caja_ahorro) THEN
 					IF NOT caja_ahorro = caja_destino THEN												#No puedo realizar una transferencia a la misma cuenta
 						IF saldo_actual >= monto THEN 	
-							SELECT nro_cliente INTO cliente FROM cliente_ca NATURAL JOIN caja_ahorro WHERE nro_ca = caja_ahorro; #Guardo el numero de cliente asociado a la caja de ahorro												#Si el saldo de la caja de ahorro es suficiente como realizar la transacción, la realizo
+							SELECT nro_cliente INTO cliente FROM Cliente_ca NATURAL JOIN tarjeta WHERE tarjeta.nro_tarjeta = tarjeta; #Guardo el numero de cliente asociado a la caja de ahorro												#Si el saldo de la caja de ahorro es suficiente como realizar la transacción, la realizo
 							UPDATE caja_ahorro SET saldo = saldo - monto WHERE nro_ca = caja_ahorro;	#Actualizo el saldo de la caja de ahorro
 							UPDATE caja_ahorro SET saldo = saldo + monto WHERE nro_ca = caja_destino;	#Actualizo el saldo de la caja destino
 							INSERT INTO Transaccion(fecha, hora, monto) VALUES (CURDATE(), CURTIME(), monto); #inserto una transacción
